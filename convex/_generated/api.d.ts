@@ -9,6 +9,7 @@
  */
 
 import type * as meals from "../meals.js";
+import type * as ocr from "../ocr.js";
 import type * as receipts from "../receipts.js";
 
 import type {
@@ -19,6 +20,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   meals: typeof meals;
+  ocr: typeof ocr;
   receipts: typeof receipts;
 }>;
 

@@ -15,6 +15,11 @@ dist-ssr
 # Convex deployment secrets (uploaded via `npm run convex:env`)
 .env.convex
 
+# Receipt photos used as local test fixtures — don't commit
+tests/fixtures/*.jpg
+tests/fixtures/*.jpeg
+tests/fixtures/*.png
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
