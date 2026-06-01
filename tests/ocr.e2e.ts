@@ -56,15 +56,18 @@ async function main() {
     process.exit(0);
   }
 
-  const model = env.GEMINI_MODEL || "gemini-2.5-flash";
-  console.log(`OCR ${IMAGE} via ${model}…\n`);
+  const models = [
+    env.GEMINI_MODEL || "gemini-2.5-flash",
+    env.GEMINI_FALLBACK_MODEL || "gemini-3.1-pro-preview",
+  ].filter((m, i, a) => a.indexOf(m) === i);
+  console.log(`OCR ${IMAGE} via [${models.join(", ")}]…\n`);
 
   const buf = readFileSync(IMAGE);
   const ocr = await fetchReceiptOcr({
     imageBase64: buf.toString("base64"),
     mimeType: IMAGE.endsWith(".png") ? "image/png" : "image/jpeg",
     apiKey: env.GEMINI_API_KEY,
-    model,
+    models,
   });
 
   console.log(JSON.stringify(ocr, null, 2), "\n");

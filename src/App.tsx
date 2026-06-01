@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { loadMe, type Me } from "./lib/identity";
+import { downscaleToJpeg } from "./lib/image";
+import { reportError } from "./lib/errorOverlay";
 import NameGate from "./components/NameGate";
 import BottomNav, { type Tab } from "./components/BottomNav";
 import Receipts from "./screens/Receipts";
@@ -20,13 +22,18 @@ export default function App() {
   const fileRef = useRef<HTMLInputElement>(null);
   const mealId = sharedMealId();
 
-  function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+  async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = ""; // allow re-selecting the same file
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setCaptured(reader.result as string);
-    reader.readAsDataURL(file);
+    try {
+      setCaptured(await downscaleToJpeg(file)); // shrink + JPEG-ify before OCR
+    } catch (err) {
+      reportError("image downscale", err);
+      const reader = new FileReader(); // fall back to the raw photo
+      reader.onload = () => setCaptured(reader.result as string);
+      reader.readAsDataURL(file);
+    }
   }
 
   // Re-render on back/forward so the share route resolves.

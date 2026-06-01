@@ -51,14 +51,23 @@ quantity. Also give "box": the bounding box of that line on the image as
 grand total AFTER tax but BEFORE any tip. Use plain numbers (no currency
 symbols).`;
 
-export async function fetchReceiptOcr(opts: {
-  imageBase64: string;
-  mimeType?: string;
-  apiKey: string;
-  model: string;
-}): Promise<ReceiptOcr> {
-  const { imageBase64, mimeType, apiKey, model } = opts;
+// Statuses where the model is just busy/transient — worth trying another model.
+const RETRYABLE_STATUS = new Set([429, 500, 503]);
 
+class GeminiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+async function callGemini(
+  model: string,
+  imageBase64: string,
+  mimeType: string,
+  apiKey: string,
+): Promise<ReceiptOcr> {
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
     {
@@ -68,12 +77,7 @@ export async function fetchReceiptOcr(opts: {
         contents: [
           {
             parts: [
-              {
-                inline_data: {
-                  mime_type: mimeType ?? "image/jpeg",
-                  data: imageBase64,
-                },
-              },
+              { inline_data: { mime_type: mimeType, data: imageBase64 } },
               { text: OCR_PROMPT },
             ],
           },
@@ -88,13 +92,43 @@ export async function fetchReceiptOcr(opts: {
   );
 
   if (!res.ok) {
-    throw new Error(`Gemini ${model} error ${res.status}: ${await res.text()}`);
+    throw new GeminiError(
+      `Gemini ${model} error ${res.status}: ${await res.text()}`,
+      res.status,
+    );
   }
   const data = await res.json();
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("Gemini returned no content");
+  if (!text) throw new GeminiError(`Gemini ${model} returned no content`, 502);
 
   const parsed = JSON.parse(text) as ReceiptOcr;
-  if (!parsed.items?.length) throw new Error("No items found on the receipt");
+  if (!parsed.items?.length)
+    throw new GeminiError("No items found on the receipt", 422);
   return parsed;
+}
+
+// Try each model in order; if one is overloaded (503/429/500), fall through to
+// the next. Non-retryable errors (e.g. 400/404) throw immediately.
+export async function fetchReceiptOcr(opts: {
+  imageBase64: string;
+  mimeType?: string;
+  apiKey: string;
+  models: string[];
+}): Promise<ReceiptOcr> {
+  const { imageBase64, mimeType = "image/jpeg", apiKey, models } = opts;
+  if (models.length === 0) throw new Error("no models configured");
+
+  let lastErr: unknown;
+  for (let i = 0; i < models.length; i++) {
+    try {
+      return await callGemini(models[i], imageBase64, mimeType, apiKey);
+    } catch (e) {
+      lastErr = e;
+      const status = e instanceof GeminiError ? e.status : 0;
+      const isLast = i === models.length - 1;
+      if (isLast || !RETRYABLE_STATUS.has(status)) throw e;
+      // else: model busy — try the next one
+    }
+  }
+  throw lastErr;
 }
