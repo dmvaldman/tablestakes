@@ -13,7 +13,9 @@ export default function Receipts({ me }: { me: Me }) {
   if (meals.length === 0)
     return (
       <p className="pt-16 text-center text-on-surface-variant">
-        No receipts yet. Tap + after your next dinner.
+        No receipts yet.
+        <br />
+        Tap + after your next meal.
       </p>
     );
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { loadMe, type Me } from "./lib/identity";
 import NameGate from "./components/NameGate";
 import BottomNav, { type Tab } from "./components/BottomNav";
@@ -16,8 +16,18 @@ function sharedMealId(): string | null {
 export default function App() {
   const [me, setMe] = useState<Me | null>(loadMe());
   const [tab, setTab] = useState<Tab>("receipts");
-  const [composing, setComposing] = useState(false);
+  const [captured, setCaptured] = useState<string | null>(null); // photo data URL
+  const fileRef = useRef<HTMLInputElement>(null);
   const mealId = sharedMealId();
+
+  function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setCaptured(reader.result as string);
+    reader.readAsDataURL(file);
+  }
 
   // Re-render on back/forward so the share route resolves.
   const [, force] = useState(0);
@@ -53,9 +63,19 @@ export default function App() {
         {tab === "receipts" ? <Receipts me={me} /> : <Friends me={me} />}
       </main>
 
+      {/* Hidden capture input — the + opens the camera directly on mobile */}
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={onPhoto}
+      />
+
       {/* M3 FAB — rounded-square tonal container */}
       <button
-        onClick={() => setComposing(true)}
+        onClick={() => fileRef.current?.click()}
         aria-label="New receipt"
         className="fixed bottom-24 right-5 z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-container text-3xl leading-none text-on-primary-container shadow-m3 transition active:scale-95"
       >
@@ -64,7 +84,13 @@ export default function App() {
 
       <BottomNav tab={tab} onChange={setTab} />
 
-      {composing && <NewReceipt me={me} onClose={() => setComposing(false)} />}
+      {captured && (
+        <NewReceipt
+          me={me}
+          image={captured}
+          onClose={() => setCaptured(null)}
+        />
+      )}
     </div>
   );
 }

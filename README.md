@@ -7,7 +7,9 @@ over time everyone converges to paying their fair share in expectation. Based on
 
 ## How it works
 
-You add the receipt's line items and tap **Spin**. The app walks the items and,
+You tap **+**, which opens the camera. The photo is OCR'd (Gemini) into line
+items + total, and the algorithm runs invisibly while a scan animation plays
+over the photo. The app walks the items and,
 for each, the person who ordered it pays the _whole bill_ with probability
 `item cost / remaining subtotal`. The first "hit" wins. This makes
 `P(person pays) = their share / total`, so expected payment = fair share — the
@@ -32,8 +34,13 @@ payer is recorded when someone opens the shared link and confirms "I paid."
   - `meals.ts` — `createMeal`, `claimParticipant`, `confirmPayer`, `getMeal`,
     `mealsForUser`. The last one powers both the Receipts timeline and all
     Friends-tab stats, which are computed client-side (`src/lib/stats.ts`).
-  - `receipts.ts` — `itemizeReceipt` action (vision-OCR). **Stubbed**; v1 uses
-    manual item entry. The API key must live here, never in the client.
+  - `receipts.ts` — `itemizeReceipt` action: sends the captured photo to Google
+    Gemini (`generateContent`, structured-JSON output with bounding boxes) and
+    returns line items + total. The API key lives server-side only; manual
+    entry is the fallback if OCR fails. Set the keys by copying
+    `.env.convex.example` → `.env.convex` (gitignored), filling it in, and
+    running `npm run convex:env` (bulk-uploads to the deployment via
+    `convex env set < .env.convex`).
 
 ## Setup
 
@@ -41,6 +48,10 @@ payer is recorded when someone opens the shared link and confirms "I paid."
 npm install
 npx convex dev      # logs in, creates a dev deployment, generates convex/_generated,
                     # and writes VITE_CONVEX_URL into .env.local. Leave running.
+
+cp .env.convex.example .env.convex   # then fill in your GEMINI_API_KEY
+npm run convex:env                   # uploads secrets to the deployment
+
 npm run dev         # in a second terminal
 ```
 
@@ -58,6 +69,5 @@ node --experimental-strip-types tests/fairness.ts
 
 ## Not yet built (v1 scope notes)
 
-- Real receipt-photo OCR (wire a vision model into `receipts.ts`).
 - PWA manifest + service worker for home-screen install / offline shell.
 - Production SPA routing fallback for `/m/<id>` deep links.

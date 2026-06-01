@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Convex deployment secrets (uploaded via `npm run convex:env`)
+.env.convex
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

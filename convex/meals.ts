@@ -1,6 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 
 // Create a meal once the algorithm has run on the creator's device. We store
 // only the total + the creator as the first participant. The payer is unknown

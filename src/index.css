@@ -39,3 +39,16 @@ body {
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
 }
+
+/* Scanning line for the OCR / rolling overlay */
+@keyframes scan {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
+}
+.animate-scan {
+  animation: scan 1.3s ease-in-out infinite alternate;
+}
