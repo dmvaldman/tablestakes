@@ -11,7 +11,7 @@ type BoxedItem = Item & { box?: number[] };
 
 // "split" appears only when the drawn item has duplicate units (e.g. 4 lagers):
 // the table assigns who's 1..K, then we pick one slot uniformly.
-type Stage = "reading" | "rolling" | "split" | "result" | "error";
+type Stage = "reading" | "rolling" | "split" | "result" | "share" | "error";
 
 const norm = (s: string) => s.trim().toLowerCase();
 
@@ -19,10 +19,12 @@ export default function NewReceipt({
   me,
   image,
   onClose,
+  onRetake,
 }: {
   me: Me;
   image: string; // captured photo as a data URL
   onClose: () => void;
+  onRetake: () => void; // discard this photo and reopen the camera
 }) {
   const itemize = useAction(api.receipts.itemizeReceipt);
   const createMeal = useMutation(api.meals.createMeal);
@@ -38,6 +40,7 @@ export default function NewReceipt({
   const [drawing, setDrawing] = useState(false);
   const [mealId, setMealId] = useState<Id<"meals"> | null>(null);
   const [dismissed, setDismissed] = useState(false); // local-only "No, not me"
+  const [copied, setCopied] = useState(false);
   const started = useRef(false);
 
   // Live view of the meal so the payer state syncs across everyone's screens.
@@ -97,6 +100,8 @@ export default function NewReceipt({
       setDupCount(groupSize);
       setStage(groupSize > 1 ? "split" : "result");
     } catch (e) {
+      // Expected failure path (no receipt, busy model, etc.) — show the calm
+      // error screen; don't spam the debug overlay.
       setError(e instanceof Error ? e.message : String(e));
       setStage("error");
     }
@@ -114,19 +119,16 @@ export default function NewReceipt({
     setStage("result");
   }
 
-  async function share() {
-    if (!mealId) return;
-    const url = `${window.location.origin}/m/${mealId}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ url });
-        return;
-      } catch {
-        /* cancelled — fall through to clipboard */
-      }
+  const shareUrl = mealId ? `${window.location.origin}/m/${mealId}` : "";
+
+  async function copyUrl() {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard unavailable */
     }
-    await navigator.clipboard.writeText(url);
-    alert("Link copied!");
   }
 
   // "Yes" claims the payer slot (shared); "No" only dismisses locally and never
@@ -136,8 +138,6 @@ export default function NewReceipt({
   }
 
   const showScan = stage === "reading" || stage === "rolling";
-  const showBox =
-    (stage === "result" || stage === "split") && !!chosen?.box;
 
   return (
     <div className="fixed inset-0 z-20 mx-auto flex max-w-md flex-col bg-surface">
@@ -150,16 +150,13 @@ export default function NewReceipt({
       </header>
 
       {/* Photo + overlays. We display the just-captured image but never store it. */}
-      <div className="relative flex-1 overflow-hidden">
-        <img src={image} alt="receipt" className="h-full w-full object-contain" />
-
-        {/* chosen-item highlight box */}
-        {showBox && chosen?.box && (
-          <div
-            className="absolute rounded-md bg-primary/25 ring-2 ring-primary"
-            style={boxStyle(chosen.box)}
+      {stage !== "share" && (
+        <div className="relative flex-1 overflow-hidden">
+          <img
+            src={image}
+            alt="receipt"
+            className="h-full w-full object-contain"
           />
-        )}
 
         {/* scanning overlay during OCR + roll */}
         {showScan && (
@@ -182,12 +179,14 @@ export default function NewReceipt({
 
         {/* error overlay */}
         {stage === "error" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-surface/90 p-8 text-center">
-            <p className="text-on-surface-variant">Couldn't read the receipt.</p>
-            <p className="text-xs text-on-surface-variant/70">{error}</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-surface/95 p-8 text-center">
+            <p className="text-4xl">🧾</p>
+            <p className="font-medium text-on-surface">
+              {friendlyError(error)}
+            </p>
             <button
-              onClick={onClose}
-              className="rounded-full bg-primary px-6 py-2.5 font-medium text-on-primary"
+              onClick={onRetake}
+              className="mt-2 rounded-full bg-primary px-6 py-2.5 font-medium text-on-primary"
             >
               Try another photo
             </button>
@@ -203,23 +202,18 @@ export default function NewReceipt({
                   {chosen.name} #{dupIndex} pays!
                 </h2>
                 <p className="mt-1 text-on-surface-variant">
-                  Whoever's #{dupIndex} of {dupCount} covers the whole $
-                  {total.toFixed(2)} bill.
+                  Whoever's #{dupIndex} of {dupCount} pays.
                 </p>
               </>
             ) : (
-              <>
-                <h2 className="text-2xl font-medium">
-                  Whoever got the {chosen.name} pays!
-                </h2>
-                <p className="mt-1 text-on-surface-variant">
-                  The whole ${total.toFixed(2)} bill.
-                </p>
-              </>
+              <h2 className="text-2xl font-medium">
+                Whoever got the {chosen.name} pays!
+              </h2>
             )}
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {/* split screen: break a tie among K identical units */}
       {stage === "split" && chosen && (
@@ -229,8 +223,7 @@ export default function NewReceipt({
           </h2>
           <p className="mt-1 text-center text-sm text-on-surface-variant">
             {dupCount} of you ordered the {chosen.name.toLowerCase()}. Agree
-            who's 1–{dupCount}, then draw — that person pays the whole $
-            {total.toFixed(2)}.
+            who's 1–{dupCount}, then draw — that person pays the bill.
           </p>
 
           <div className="my-5">
@@ -255,13 +248,36 @@ export default function NewReceipt({
               <SlotCircles count={dupCount} active={dupIndex} />
             </div>
           )}
+          <p className="mb-3 text-center text-on-surface-variant">
+            Share with the table to track this meal
+          </p>
           <button
-            onClick={share}
+            onClick={() => setStage("share")}
             className="w-full rounded-full bg-primary py-3 font-medium text-on-primary"
           >
-            Share with the table
+            Share
           </button>
-          <div className="mt-4 rounded-2xl bg-surface-container p-4">
+        </div>
+      )}
+
+      {/* share screen: URL to copy + the payer widget */}
+      {stage === "share" && (
+        <div className="flex flex-1 flex-col p-5">
+          <p className="text-on-surface-variant">
+            Share this URL with your fellow diners.
+          </p>
+          <div className="mt-3 flex items-center gap-2 rounded-xl bg-surface-container p-3">
+            <span className="flex-1 truncate text-sm">{shareUrl}</span>
+            <button
+              onClick={copyUrl}
+              aria-label="Copy link"
+              className="shrink-0 rounded-lg bg-surface-container-high px-3 py-2 text-sm font-medium"
+            >
+              {copied ? "Copied" : "Copy"}
+            </button>
+          </div>
+
+          <div className="mt-6 rounded-2xl bg-surface-container p-4">
             <p className="mb-3 text-center font-medium">
               {payerId === me.id
                 ? "You're covering this one 🎉"
@@ -294,6 +310,13 @@ export default function NewReceipt({
               </button>
             </div>
           </div>
+
+          <button
+            onClick={() => setStage("result")}
+            className="mt-auto py-3 text-center font-medium text-on-surface-variant"
+          >
+            Cancel
+          </button>
         </div>
       )}
     </div>
@@ -320,17 +343,15 @@ function SlotCircles({ count, active }: { count: number; active: number }) {
   );
 }
 
-// Map a Gemini box [ymin,xmin,ymax,xmax] in 0–1000 to CSS percentages.
-function boxStyle(box: number[]): React.CSSProperties {
-  const [ymin, xmin, ymax, xmax] = box;
-  return {
-    left: `${xmin / 10}%`,
-    top: `${ymin / 10}%`,
-    width: `${(xmax - xmin) / 10}%`,
-    height: `${(ymax - ymin) / 10}%`,
-  };
-}
-
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+// Turn a raw OCR/network error into a calm, user-facing message.
+function friendlyError(raw: string): string {
+  if (/no items|no receipt|not found on the receipt/i.test(raw))
+    return "We didn't detect a receipt. Please try again!";
+  if (/\b(503|429|overload|unavailable|quota)\b/i.test(raw))
+    return "The receipt reader is busy right now. Give it another shot.";
+  return "Something went wrong reading the receipt. Please try again.";
 }

@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { loadMe, type Me } from "./lib/identity";
-import { downscaleToJpeg } from "./lib/image";
-import { reportError } from "./lib/errorOverlay";
 import NameGate from "./components/NameGate";
 import BottomNav, { type Tab } from "./components/BottomNav";
+import CameraCapture from "./components/CameraCapture";
 import Receipts from "./screens/Receipts";
 import Friends from "./screens/Friends";
 import NewReceipt from "./screens/NewReceipt";
@@ -18,23 +17,9 @@ function sharedMealId(): string | null {
 export default function App() {
   const [me, setMe] = useState<Me | null>(loadMe());
   const [tab, setTab] = useState<Tab>("receipts");
+  const [capturing, setCapturing] = useState(false); // camera open
   const [captured, setCaptured] = useState<string | null>(null); // photo data URL
-  const fileRef = useRef<HTMLInputElement>(null);
   const mealId = sharedMealId();
-
-  async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = ""; // allow re-selecting the same file
-    if (!file) return;
-    try {
-      setCaptured(await downscaleToJpeg(file)); // shrink + JPEG-ify before OCR
-    } catch (err) {
-      reportError("image downscale", err);
-      const reader = new FileReader(); // fall back to the raw photo
-      reader.onload = () => setCaptured(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  }
 
   // Re-render on back/forward so the share route resolves.
   const [, force] = useState(0);
@@ -70,19 +55,9 @@ export default function App() {
         {tab === "receipts" ? <Receipts me={me} /> : <Friends me={me} />}
       </main>
 
-      {/* Hidden capture input — the + opens the camera directly on mobile */}
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={onPhoto}
-      />
-
-      {/* M3 FAB — rounded-square tonal container */}
+      {/* M3 FAB — rounded-square tonal container; opens the in-app camera */}
       <button
-        onClick={() => fileRef.current?.click()}
+        onClick={() => setCapturing(true)}
         aria-label="New receipt"
         className="fixed bottom-24 right-5 z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-container text-3xl leading-none text-on-primary-container shadow-m3 transition active:scale-95"
       >
@@ -91,11 +66,25 @@ export default function App() {
 
       <BottomNav tab={tab} onChange={setTab} />
 
+      {capturing && (
+        <CameraCapture
+          onCapture={(dataUrl) => {
+            setCaptured(dataUrl);
+            setCapturing(false);
+          }}
+          onClose={() => setCapturing(false)}
+        />
+      )}
+
       {captured && (
         <NewReceipt
           me={me}
           image={captured}
           onClose={() => setCaptured(null)}
+          onRetake={() => {
+            setCaptured(null);
+            setCapturing(true);
+          }}
         />
       )}
     </div>
