@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useAction, useMutation } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { choosePayingItem, type Item } from "../lib/expectorant";
@@ -37,8 +37,15 @@ export default function NewReceipt({
   const [dupIndex, setDupIndex] = useState(0); // drawn slot [1..dupCount], 0 = undrawn
   const [drawing, setDrawing] = useState(false);
   const [mealId, setMealId] = useState<Id<"meals"> | null>(null);
-  const [iPaid, setIPaid] = useState<boolean | null>(null);
+  const [dismissed, setDismissed] = useState(false); // local-only "No, not me"
   const started = useRef(false);
+
+  // Live view of the meal so the payer state syncs across everyone's screens.
+  const meal = useQuery(api.meals.getMeal, mealId ? { mealId } : "skip");
+  const payerId = meal?.payerId ?? null;
+  const payerName = payerId
+    ? meal?.participants.find((p) => p.userId === payerId)?.name
+    : null;
 
   // Kick off OCR + the (invisible) algorithm as soon as we have a photo.
   useEffect(() => {
@@ -122,9 +129,10 @@ export default function NewReceipt({
     alert("Link copied!");
   }
 
-  async function setPaid(paid: boolean) {
-    setIPaid(paid);
-    if (mealId) await confirmPayer({ mealId, payerId: paid ? me.id : null });
+  // "Yes" claims the payer slot (shared); "No" only dismisses locally and never
+  // overwrites a payer someone else already confirmed.
+  async function sayPaid() {
+    if (mealId) await confirmPayer({ mealId, payerId: me.id });
   }
 
   const showScan = stage === "reading" || stage === "rolling";
@@ -255,13 +263,18 @@ export default function NewReceipt({
           </button>
           <div className="mt-4 rounded-2xl bg-surface-container p-4">
             <p className="mb-3 text-center font-medium">
-              Were you the one who paid?
+              {payerId === me.id
+                ? "You're covering this one 🎉"
+                : payerId
+                  ? `${payerName ?? "Someone"} paid 🙌`
+                  : "Were you the one who paid?"}
             </p>
             <div className="flex gap-3">
               <button
-                onClick={() => setPaid(true)}
-                className={`flex-1 rounded-full py-2 font-medium ${
-                  iPaid === true
+                onClick={sayPaid}
+                disabled={!!payerId}
+                className={`flex-1 rounded-full py-2 font-medium disabled:opacity-60 ${
+                  payerId === me.id
                     ? "bg-primary text-on-primary"
                     : "bg-surface ring-1 ring-outline-variant"
                 }`}
@@ -269,9 +282,10 @@ export default function NewReceipt({
                 Yes, I paid
               </button>
               <button
-                onClick={() => setPaid(false)}
-                className={`flex-1 rounded-full py-2 font-medium ${
-                  iPaid === false
+                onClick={() => setDismissed(true)}
+                disabled={!!payerId}
+                className={`flex-1 rounded-full py-2 font-medium disabled:opacity-60 ${
+                  (payerId && payerId !== me.id) || dismissed
                     ? "bg-surface-container-high text-on-surface ring-1 ring-primary"
                     : "bg-surface ring-1 ring-outline-variant"
                 }`}
