@@ -1,8 +1,9 @@
-# Expectorant
+# Tablestakes
 
 A zero-friction mobile web app for friends who eat together. After dinner, one
 person pays the whole bill — but _who_ is chosen by chance, weighted so that
-over time everyone converges to paying their fair share in expectation. Based on
+over time everyone converges to paying their fair share in expectation. The
+selection uses the Expectorant algorithm from
 [messymatters.com/expectorant](https://messymatters.com/expectorant/).
 
 ## How it works

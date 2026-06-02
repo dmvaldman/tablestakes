@@ -61,7 +61,7 @@ export default function App() {
   return (
     <div className="mx-auto flex h-[100svh] max-w-md flex-col overflow-hidden bg-surface text-on-surface">
       <header className="flex shrink-0 items-center justify-between bg-surface px-5 pt-5 pb-3">
-        <h1 className="text-2xl font-medium tracking-tight">Dinner Winner</h1>
+        <h1 className="text-2xl font-medium tracking-tight">Tablestakes</h1>
         <button
           onClick={() => setEditing(true)}
           aria-label="Edit your name"
