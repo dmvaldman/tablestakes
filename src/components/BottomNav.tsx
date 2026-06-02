@@ -19,7 +19,7 @@ export default function BottomNav({
           onClick={() => onChange(it.key)}
           className={`flex flex-1 items-center justify-center py-4 text-lg font-medium tracking-wide transition-colors ${
             tab === it.key
-              ? "text-primary"
+              ? "bg-primary-container text-on-primary-container"
               : "text-on-surface-variant"
           }`}
         >

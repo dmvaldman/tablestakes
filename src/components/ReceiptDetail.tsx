@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import type { Me } from "../lib/identity";
+import { firstNameOf, type Me } from "../lib/identity";
+import Avatar from "./Avatar";
 
 // Full receipt view: date, total, attendees, who paid (confirmable if not yet),
 // and the spelled-out share link. Used after a draw and from the Receipts list.
@@ -66,9 +67,16 @@ export default function ReceiptDetail({
           {/* who paid (confirmable if nobody has yet) */}
           <Section label="Paid by">
             {payerId ? (
-              <p className="font-medium text-primary">
-                {payerId === me.id ? "You" : (payerName ?? "Someone")}
-              </p>
+              <div className="flex items-center gap-2">
+                <Avatar
+                  name={payerName ?? "?"}
+                  colorKey={payerId}
+                  size={28}
+                />
+                <span className="font-medium text-primary">
+                  {payerId === me.id ? "You" : firstNameOf(payerName ?? "Someone")}
+                </span>
+              </div>
             ) : (
               <div className="flex gap-3">
                 <button
@@ -111,11 +119,19 @@ export default function ReceiptDetail({
           {/* attendees — only once someone else has opened the link */}
           {meal.participants.some((p) => p.userId !== me.id) && (
             <Section label="Attendees">
-              <p>
-                {meal.participants
-                  .map((p) => (p.userId === me.id ? "You" : p.name))
-                  .join(" · ")}
-              </p>
+              <div className="flex flex-wrap gap-2">
+                {meal.participants.map((p) => (
+                  <div
+                    key={p.userId}
+                    className="flex items-center gap-1.5 rounded-full bg-surface-container py-1 pl-1 pr-3"
+                  >
+                    <Avatar name={p.name} colorKey={p.userId} size={24} />
+                    <span className="text-sm">
+                      {p.userId === me.id ? "You" : firstNameOf(p.name)}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </Section>
           )}
         </div>

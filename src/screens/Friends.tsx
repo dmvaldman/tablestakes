@@ -2,6 +2,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Me } from "../lib/identity";
 import { friendStats, type MealView } from "../lib/stats";
+import Avatar from "../components/Avatar";
 
 // Per-friend tallies that should converge as overlapping meals accumulate.
 export default function Friends({ me }: { me: Me }) {
@@ -15,44 +16,56 @@ export default function Friends({ me }: { me: Me }) {
 
   if (stats.length === 0)
     return (
-      <p className="pt-16 text-center text-on-surface-variant">
-        No dining companions yet. <br />
-        Share a receipt to start tracking.
-      </p>
+      <div className="flex flex-col items-center pt-24 text-center text-on-surface-variant">
+        <div className="text-5xl">👥</div>
+        <p className="mt-4 text-on-surface">No dining companions yet</p>
+        <p className="mt-1 text-sm">Share a receipt to start tracking.</p>
+      </div>
     );
 
   return (
-    <ul className="space-y-3 pt-2">
+    <ul className="space-y-2.5 pt-1">
       {stats.map((s) => (
         <li
           key={s.userId}
-          className="rounded-xl border border-outline-variant p-4"
+          className="animate-fade-up rounded-2xl bg-surface-container p-4"
         >
-          <h3 className="text-base font-semibold">{s.name}</h3>
-          <dl className="mt-2 space-y-1 text-sm text-on-surface-variant">
-            <Row label="Meals shared" value={`${s.timesTogether}`} />
-            <Row
-              label="You paid"
-              value={`${s.timesYouPaid}× for total of ${money(s.amountYouPaid)}`}
+          <div className="flex items-center gap-3">
+            <Avatar name={s.name} colorKey={s.userId} />
+            <div className="min-w-0 flex-1">
+              <h3 className="truncate font-semibold">{s.name}</h3>
+              <p className="text-sm text-on-surface-variant">
+                {s.timesTogether} meal{s.timesTogether === 1 ? "" : "s"} together
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-2.5">
+            <StatTile label="You paid" amount={money(s.amountYouPaid)} />
+            <StatTile
+              label={`${firstName(s.name)} paid`}
+              amount={money(s.amountTheyPaid)}
             />
-            <Row
-              label="They paid"
-              value={`${s.timesTheyPaid}× for total of ${money(s.amountTheyPaid)}`}
-            />
-          </dl>
+          </div>
         </li>
       ))}
     </ul>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function StatTile({ label, amount }: { label: string; amount: string }) {
   return (
-    <div className="flex justify-between gap-4">
-      <dt>{label}</dt>
-      <dd className="tabular-nums text-on-surface">{value}</dd>
+    <div className="rounded-xl bg-surface p-3">
+      <p className="truncate text-xs uppercase tracking-wide text-on-surface-variant">
+        {label}
+      </p>
+      <p className="mt-0.5 text-lg font-semibold tabular-nums">{amount}</p>
     </div>
   );
+}
+
+function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] || name;
 }
 
 // $150 (no cents when round) / $276.46 (cents when present).

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import type { Me } from "../lib/identity";
+import { displayName, type Me } from "../lib/identity";
 
 // Opened from a shared link. We claim the opener's slot on the meal, then ask
 // the one essential question the app can't know on its own: did YOU pay?
@@ -23,11 +23,11 @@ export default function JoinMeal({
 
   useEffect(() => {
     if (meal && !claimed) {
-      claim({ mealId: id, userId: me.id, name: me.name }).then(() =>
+      claim({ mealId: id, userId: me.id, name: displayName(me) }).then(() =>
         setClaimed(true),
       );
     }
-  }, [meal, claimed, claim, id, me.id, me.name]);
+  }, [meal, claimed, claim, id, me]);
 
   if (meal === undefined)
     return <Centered>Loading…</Centered>;

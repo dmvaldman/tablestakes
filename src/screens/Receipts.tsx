@@ -4,6 +4,7 @@ import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import type { Me } from "../lib/identity";
 import type { MealView } from "../lib/stats";
+import Avatar from "../components/Avatar";
 import ReceiptDetail from "../components/ReceiptDetail";
 
 // Timeline of bubbles (date · total · paid by); tap one for the full detail.
@@ -17,43 +18,40 @@ export default function Receipts({ me }: { me: Me }) {
     return <p className="pt-8 text-on-surface-variant">Loading…</p>;
   if (meals.length === 0)
     return (
-      <p className="pt-16 text-center text-on-surface-variant">
-        No receipts yet.
-        <br />
-        Tap + after your next meal.
-      </p>
+      <div className="flex flex-col items-center pt-24 text-center text-on-surface-variant">
+        <div className="text-5xl">🧾</div>
+        <p className="mt-4 text-on-surface">No receipts yet</p>
+        <p className="mt-1 text-sm">Tap the + to settle your next meal.</p>
+      </div>
     );
 
   return (
     <>
-      <ul className="space-y-3 pt-2">
+      <ul className="space-y-2.5 pt-1">
         {meals.map((m) => {
           const payer = m.participants.find((p) => p.userId === m.payerId);
           return (
-            <li key={m._id}>
+            <li key={m._id} className="animate-fade-up">
               <button
                 onClick={() => setOpenId(m._id as Id<"meals">)}
-                className="w-full rounded-xl border border-outline-variant p-4 text-left active:bg-surface-container"
+                className="flex w-full items-center gap-3 rounded-2xl bg-surface-container p-4 text-left transition active:scale-[0.99]"
               >
-                <div className="flex justify-between">
-                  <span className="text-sm text-on-surface-variant">
-                    {new Date(m.createdAt).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                  <span className="font-semibold tabular-nums">
-                    ${m.total.toFixed(2)}
-                  </span>
-                </div>
-                {payer && (
-                  <p className="mt-1 text-sm">
-                    Paid by{" "}
-                    <span className="font-medium text-primary">
-                      {payer.userId === me.id ? "you" : payer.name}
-                    </span>
-                  </p>
+                {payer ? (
+                  <Avatar name={payer.name} colorKey={payer.userId} />
+                ) : (
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant">
+                    ?
+                  </div>
                 )}
+                <span className="flex-1 text-on-surface">
+                  {new Date(m.createdAt).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+                <span className="text-lg font-semibold tabular-nums">
+                  ${m.total.toFixed(2)}
+                </span>
               </button>
             </li>
           );
@@ -61,11 +59,7 @@ export default function Receipts({ me }: { me: Me }) {
       </ul>
 
       {openId && (
-        <ReceiptDetail
-          mealId={openId}
-          me={me}
-          onClose={() => setOpenId(null)}
-        />
+        <ReceiptDetail mealId={openId} me={me} onClose={() => setOpenId(null)} />
       )}
     </>
   );

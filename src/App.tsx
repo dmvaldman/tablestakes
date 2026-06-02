@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { loadMe, saveMe, type Me } from "./lib/identity";
+import { loadMe, saveMe, displayName, type Me } from "./lib/identity";
 import NameGate from "./components/NameGate";
+import Avatar from "./components/Avatar";
+import IdentityForm from "./components/IdentityForm";
 import BottomNav, { type Tab } from "./components/BottomNav";
 import CameraCapture from "./components/CameraCapture";
 import Receipts from "./screens/Receipts";
@@ -21,18 +23,16 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("receipts");
   const [capturing, setCapturing] = useState(false); // camera open
   const [captured, setCaptured] = useState<string | null>(null); // photo data URL
-  const [editingName, setEditingName] = useState(false);
-  const [draftName, setDraftName] = useState("");
+  const [editing, setEditing] = useState(false);
   const renameUser = useMutation(api.meals.renameUser);
   const mealId = sharedMealId();
 
-  async function saveName() {
-    const n = draftName.trim();
-    setEditingName(false);
-    if (!me || !n || n === me.name) return;
-    const updated = saveMe(n); // keeps the same uuid
+  async function saveIdentity(first: string, last: string) {
+    setEditing(false);
+    const updated = saveMe(first, last); // keeps the same uuid
     setMe(updated);
-    await renameUser({ userId: updated.id, name: n }); // backfill past meals
+    // backfill the denormalized display name on past meals
+    await renameUser({ userId: updated.id, name: displayName(updated) });
   }
 
   // Re-render on back/forward so the share route resolves.
@@ -62,29 +62,13 @@ export default function App() {
     <div className="mx-auto flex h-[100svh] max-w-md flex-col overflow-hidden bg-surface text-on-surface">
       <header className="flex shrink-0 items-center justify-between bg-surface px-5 pt-5 pb-3">
         <h1 className="text-2xl font-medium tracking-tight">Dinner Winner</h1>
-        {editingName ? (
-          <input
-            autoFocus
-            value={draftName}
-            onChange={(e) => setDraftName(e.target.value)}
-            onBlur={saveName}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") saveName();
-              if (e.key === "Escape") setEditingName(false);
-            }}
-            className="w-32 rounded-lg border border-outline-variant bg-surface px-2 py-1 text-right text-sm outline-none focus:border-primary"
-          />
-        ) : (
-          <button
-            onClick={() => {
-              setDraftName(me.name);
-              setEditingName(true);
-            }}
-            className="text-sm text-on-surface-variant underline-offset-2 hover:underline"
-          >
-            {me.name}
-          </button>
-        )}
+        <button
+          onClick={() => setEditing(true)}
+          aria-label="Edit your name"
+          className="transition active:scale-95"
+        >
+          <Avatar name={displayName(me)} colorKey={me.id} size={36} />
+        </button>
       </header>
 
       <main className="min-h-0 flex-1 overflow-y-auto px-5 pt-2 pb-6">
@@ -122,6 +106,32 @@ export default function App() {
             setCapturing(true);
           }}
         />
+      )}
+
+      {editing && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 p-6"
+          onClick={() => setEditing(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl bg-surface p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="mb-4 text-center text-lg font-medium">Your name</h2>
+            <IdentityForm
+              initialFirst={me.firstName}
+              initialLast={me.lastInitial}
+              submitLabel="Save"
+              onSubmit={saveIdentity}
+            />
+            <button
+              onClick={() => setEditing(false)}
+              className="mt-3 w-full py-2 text-center text-sm text-on-surface-variant"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

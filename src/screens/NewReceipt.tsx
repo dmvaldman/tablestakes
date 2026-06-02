@@ -3,7 +3,7 @@ import { useAction, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { choosePayingItem, type Item } from "../lib/expectorant";
-import type { Me } from "../lib/identity";
+import { displayName, type Me } from "../lib/identity";
 import ReceiptDetail from "../components/ReceiptDetail";
 
 type BoxedItem = Item & { box?: number[] };
@@ -72,7 +72,7 @@ export default function NewReceipt({
 
       const id = await createMeal({
         creatorId: me.id,
-        creatorName: me.name,
+        creatorName: displayName(me),
         total: ocr.total,
       });
       setMealId(id);
@@ -168,21 +168,25 @@ export default function NewReceipt({
 
         {/* result caption */}
         {stage === "result" && chosen && (
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-5 pt-12 text-center">
-            {dupCount > 1 ? (
-              <>
-                <h2 className="text-2xl font-medium text-white">
-                  {chosen.name} #{dupIndex} pays!
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent p-6 pt-16 text-center">
+            <div className="animate-pop">
+              {dupCount > 1 ? (
+                <>
+                  <h2 className="text-3xl font-semibold text-white">
+                    {chosen.name} #{dupIndex} pays!
+                  </h2>
+                  <p className="mt-2 text-white/80">
+                    Whoever's #{dupIndex} of {dupCount} pays.
+                  </p>
+                </>
+              ) : (
+                <h2 className="text-3xl font-semibold leading-snug text-white">
+                  Whoever got the
+                  <br />
+                  <span className="text-primary">{chosen.name}</span> pays!
                 </h2>
-                <p className="mt-1 text-white/80">
-                  Whoever's #{dupIndex} of {dupCount} pays.
-                </p>
-              </>
-            ) : (
-              <h2 className="text-2xl font-medium text-white">
-                Whoever got the {chosen.name} pays!
-              </h2>
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>
