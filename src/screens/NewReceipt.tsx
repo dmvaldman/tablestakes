@@ -265,7 +265,7 @@ function sleep(ms: number) {
 // Turn a raw OCR/network error into a calm, user-facing message.
 function friendlyError(raw: string): string {
   if (/no items|no receipt|not found on the receipt/i.test(raw))
-    return "We didn't detect a receipt. Please try again!";
+    return "We didn't detect a receipt. Try again!";
   if (/\b(503|429|overload|unavailable|quota)\b/i.test(raw))
     return "The receipt reader is busy right now. Give it another shot.";
   return "Something went wrong reading the receipt. Please try again.";
