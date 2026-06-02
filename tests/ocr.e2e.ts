@@ -13,7 +13,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { fetchReceiptOcr } from "../convex/ocr.ts";
-import { choosePayingItem, type Item } from "../src/lib/expectorant.ts";
+import { choosePayingItem, type Item } from "../src/lib/tablestakes.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const IMAGE = process.argv[2] ?? join(here, "fixtures", "receipt.jpg");

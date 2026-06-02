@@ -3,7 +3,7 @@
 // avatar is "DV". Lives in localStorage; clearing it / a new phone = a new
 // identity (and lost history), an accepted tradeoff.
 
-const KEY = "expectorant.me.v1";
+const KEY = "tablestakes.me.v1";
 
 export type Me = { id: string; firstName: string; lastInitial: string };
 
@@ -61,6 +61,10 @@ export function loadMe(): Me | null {
   } catch {
     return null;
   }
+}
+
+export function clearMe(): void {
+  localStorage.removeItem(KEY);
 }
 
 export function saveMe(firstName: string, lastInitial: string): Me {

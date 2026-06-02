@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { loadMe, saveMe, displayName, type Me } from "./lib/identity";
+import { loadMe, saveMe, clearMe, displayName, type Me } from "./lib/identity";
 import NameGate from "./components/NameGate";
 import Avatar from "./components/Avatar";
 import IdentityForm from "./components/IdentityForm";
@@ -19,7 +19,15 @@ function sharedMealId(): string | null {
 }
 
 export default function App() {
-  const [me, setMe] = useState<Me | null>(loadMe());
+  const [me, setMe] = useState<Me | null>(() => {
+    // Testing helper: visiting "?reset" clears your identity → back to the name screen.
+    if (new URLSearchParams(window.location.search).has("reset")) {
+      clearMe();
+      window.history.replaceState({}, "", window.location.pathname);
+      return null;
+    }
+    return loadMe();
+  });
   const [tab, setTab] = useState<Tab>("receipts");
   const [capturing, setCapturing] = useState(false); // camera open
   const [captured, setCaptured] = useState<string | null>(null); // photo data URL

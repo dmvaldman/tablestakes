@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAction, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import { choosePayingItem, type Item } from "../lib/expectorant";
+import { choosePayingItem, type Item } from "../lib/tablestakes";
 import { displayName, type Me } from "../lib/identity";
 import ReceiptDetail from "../components/ReceiptDetail";
 

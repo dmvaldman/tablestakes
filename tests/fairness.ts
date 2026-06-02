@@ -1,6 +1,6 @@
 // Monte-Carlo proof that P(person pays) converges to their fair share.
 // Run: node --experimental-strip-types tests/fairness.ts
-import { choosePayingItem, type Item } from "../src/lib/expectorant.ts";
+import { choosePayingItem, type Item } from "../src/lib/tablestakes.ts";
 
 // Three diners with very different orders. Items tagged with their owner.
 const owners = ["Alice", "Bob", "Carol"] as const;

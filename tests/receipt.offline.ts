@@ -3,7 +3,7 @@
 // through expand → choose → meal summary → friend stats.
 //   node --experimental-strip-types tests/receipt.offline.ts
 
-import { choosePayingItem, type Item } from "../src/lib/expectorant.ts";
+import { choosePayingItem, type Item } from "../src/lib/tablestakes.ts";
 import { friendStats, type MealView } from "../src/lib/stats.ts";
 import type { ReceiptOcr } from "../convex/ocr.ts";
 

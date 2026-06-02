@@ -1,4 +1,5 @@
-// The Expectorant algorithm (https://messymatters.com/expectorant/).
+// The TableStakes payer-selection algorithm.
+// (chance-based, fair in expectation — see https://messymatters.com/expectorant/)
 //
 // Walk the items in any order. For each item, the person who ordered it pays
 // the WHOLE bill with probability `cost / remaining-subtotal`. On a miss,
