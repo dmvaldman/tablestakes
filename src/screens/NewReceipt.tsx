@@ -9,7 +9,11 @@ import type { Me } from "../lib/identity";
 // we can highlight it on the photo at reveal time. [ymin,xmin,ymax,xmax]/1000.
 type BoxedItem = Item & { box?: number[] };
 
-type Stage = "reading" | "rolling" | "result" | "error";
+// "split" appears only when the drawn item has duplicate units (e.g. 4 lagers):
+// the table assigns who's 1..K, then we pick one slot uniformly.
+type Stage = "reading" | "rolling" | "split" | "result" | "error";
+
+const norm = (s: string) => s.trim().toLowerCase();
 
 export default function NewReceipt({
   me,
@@ -29,6 +33,9 @@ export default function NewReceipt({
   const [total, setTotal] = useState(0);
   const [chosen, setChosen] = useState<BoxedItem | null>(null);
   const [scanName, setScanName] = useState(""); // item flashing during the roll
+  const [dupCount, setDupCount] = useState(1); // # of identical units of the drawn item
+  const [dupIndex, setDupIndex] = useState(0); // drawn slot [1..dupCount], 0 = undrawn
+  const [drawing, setDrawing] = useState(false);
   const [mealId, setMealId] = useState<Id<"meals"> | null>(null);
   const [iPaid, setIPaid] = useState<boolean | null>(null);
   const started = useRef(false);
@@ -74,28 +81,44 @@ export default function NewReceipt({
       });
       setMealId(id);
       setChosen(outcome.chosen as BoxedItem);
-      setStage("result");
+
+      // How many identical units share the drawn item? If >1, the buyer is
+      // ambiguous → go to the split screen to break the tie fairly.
+      const groupSize = units.filter(
+        (u) => norm(u.name) === norm(outcome.chosen.name),
+      ).length;
+      setDupCount(groupSize);
+      setStage(groupSize > 1 ? "split" : "result");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
       setStage("error");
     }
   }
 
+  // Uniform sub-draw over the K identical units, with a short suspense cycle.
+  async function drawSlot() {
+    setDrawing(true);
+    for (let i = 0; i < 14; i++) {
+      setDupIndex(1 + Math.floor(Math.random() * dupCount));
+      await sleep(70 + i * 14);
+    }
+    setDupIndex(1 + Math.floor(Math.random() * dupCount));
+    setDrawing(false);
+    setStage("result");
+  }
+
   async function share() {
     if (!mealId) return;
     const url = `${window.location.origin}/m/${mealId}`;
-    const text = `We just Expectorant-ed dinner ($${total.toFixed(
-      2,
-    )}). Open to see if you're the lucky payer.`;
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Expectorant", text, url });
+        await navigator.share({ url });
         return;
       } catch {
         /* cancelled — fall through to clipboard */
       }
     }
-    await navigator.clipboard.writeText(`${text}\n${url}`);
+    await navigator.clipboard.writeText(url);
     alert("Link copied!");
   }
 
@@ -104,7 +127,9 @@ export default function NewReceipt({
     if (mealId) await confirmPayer({ mealId, payerId: paid ? me.id : null });
   }
 
-  const showOverlay = stage === "reading" || stage === "rolling";
+  const showScan = stage === "reading" || stage === "rolling";
+  const showBox =
+    (stage === "result" || stage === "split") && !!chosen?.box;
 
   return (
     <div className="fixed inset-0 z-20 mx-auto flex max-w-md flex-col bg-surface">
@@ -121,7 +146,7 @@ export default function NewReceipt({
         <img src={image} alt="receipt" className="h-full w-full object-contain" />
 
         {/* chosen-item highlight box */}
-        {stage === "result" && chosen?.box && (
+        {showBox && chosen?.box && (
           <div
             className="absolute rounded-md bg-primary/25 ring-2 ring-primary"
             style={boxStyle(chosen.box)}
@@ -129,7 +154,7 @@ export default function NewReceipt({
         )}
 
         {/* scanning overlay during OCR + roll */}
-        {showOverlay && (
+        {showScan && (
           <div className="absolute inset-0 bg-surface/40 backdrop-blur-[1px]">
             <div className="absolute inset-x-0 h-0.5 animate-scan bg-primary shadow-[0_0_12px_2px] shadow-primary" />
             <div className="absolute inset-x-0 bottom-24 text-center">
@@ -164,19 +189,64 @@ export default function NewReceipt({
         {/* result caption */}
         {stage === "result" && chosen && (
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-surface via-surface/90 to-transparent p-5 pt-12 text-center">
-            <h2 className="text-2xl font-medium">
-              Whoever got the {chosen.name} pays!
-            </h2>
-            <p className="mt-1 text-on-surface-variant">
-              The whole ${total.toFixed(2)} bill.
-            </p>
+            {dupCount > 1 ? (
+              <>
+                <h2 className="text-2xl font-medium">
+                  {chosen.name} #{dupIndex} pays!
+                </h2>
+                <p className="mt-1 text-on-surface-variant">
+                  Whoever's #{dupIndex} of {dupCount} covers the whole $
+                  {total.toFixed(2)} bill.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-medium">
+                  Whoever got the {chosen.name} pays!
+                </h2>
+                <p className="mt-1 text-on-surface-variant">
+                  The whole ${total.toFixed(2)} bill.
+                </p>
+              </>
+            )}
           </div>
         )}
       </div>
 
+      {/* split screen: break a tie among K identical units */}
+      {stage === "split" && chosen && (
+        <div className="border-t border-outline-variant p-5">
+          <h2 className="text-center text-xl font-medium">
+            {dupCount}× {chosen.name} drawn
+          </h2>
+          <p className="mt-1 text-center text-sm text-on-surface-variant">
+            {dupCount} of you ordered the {chosen.name.toLowerCase()}. Agree
+            who's 1–{dupCount}, then draw — that person pays the whole $
+            {total.toFixed(2)}.
+          </p>
+
+          <div className="my-5">
+            <SlotCircles count={dupCount} active={dupIndex} />
+          </div>
+
+          <button
+            onClick={drawSlot}
+            disabled={drawing}
+            className="w-full rounded-full bg-primary py-3 font-medium text-on-primary disabled:opacity-50"
+          >
+            {drawing ? "Drawing…" : "Draw the unlucky one"}
+          </button>
+        </div>
+      )}
+
       {/* result actions */}
       {stage === "result" && (
         <div className="border-t border-outline-variant p-5">
+          {dupCount > 1 && (
+            <div className="mb-4">
+              <SlotCircles count={dupCount} active={dupIndex} />
+            </div>
+          )}
           <button
             onClick={share}
             className="w-full rounded-full bg-primary py-3 font-medium text-on-primary"
@@ -212,6 +282,26 @@ export default function NewReceipt({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Numbered slot circles for the tie-break; the drawn number stays filled.
+function SlotCircles({ count, active }: { count: number; active: number }) {
+  return (
+    <div className="flex flex-wrap justify-center gap-2">
+      {Array.from({ length: count }, (_, i) => i + 1).map((n) => (
+        <div
+          key={n}
+          className={`flex h-12 w-12 items-center justify-center rounded-full text-lg font-medium transition ${
+            active === n
+              ? "bg-primary text-on-primary"
+              : "bg-surface-container text-on-surface-variant"
+          }`}
+        >
+          {n}
+        </div>
+      ))}
     </div>
   );
 }
