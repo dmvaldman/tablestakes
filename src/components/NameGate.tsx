@@ -7,7 +7,7 @@ export default function NameGate({ onSet }: { onSet: (me: Me) => void }) {
   return (
     <div className="mx-auto flex min-h-[100svh] max-w-md flex-col items-center justify-center gap-6 px-8 text-center">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Expectorant</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Dinner Winner</h1>
         <p className="mt-2 text-on-surface-variant">
           Settle the bill by chance. Fair in the long run, fun every time.
         </p>

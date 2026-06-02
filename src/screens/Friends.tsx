@@ -50,7 +50,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4">
       <dt>{label}</dt>
-      <dd className="text-on-surface tabular-nums">{value}</dd>
+      <dd className="tabular-nums text-on-surface">{value}</dd>
     </div>
   );
 }

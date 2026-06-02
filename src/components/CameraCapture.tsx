@@ -83,8 +83,9 @@ export default function CameraCapture({
 
   return (
     <div className="fixed inset-0 z-30 mx-auto flex max-w-md flex-col bg-black">
-      {/* banner above the feed */}
-      <div className="flex items-center justify-between bg-surface px-5 py-4">
+      {/* banner above the feed — matches the New receipt header so the
+          transition after capture doesn't shift */}
+      <div className="flex items-center justify-between border-b border-outline-variant bg-surface px-5 py-4">
         <button onClick={onClose} className="text-on-surface-variant">
           Close
         </button>

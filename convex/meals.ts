@@ -55,6 +55,21 @@ export const confirmPayer = mutation({
   },
 });
 
+// Rename: backfill the (denormalized) name on every participation for this
+// user so past meals show the new label everywhere, for everyone.
+export const renameUser = mutation({
+  args: { userId: v.string(), name: v.string() },
+  handler: async (ctx, { userId, name }) => {
+    const rows = await ctx.db
+      .query("participations")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    for (const r of rows) {
+      if (r.name !== name) await ctx.db.patch(r._id, { name });
+    }
+  },
+});
+
 // A single meal + its participants — for the share/join screen.
 export const getMeal = query({
   args: { mealId: v.id("meals") },

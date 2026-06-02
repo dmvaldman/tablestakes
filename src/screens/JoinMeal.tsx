@@ -40,7 +40,6 @@ export default function JoinMeal({
 
   return (
     <div className="mx-auto flex min-h-[100svh] max-w-md flex-col items-center justify-center gap-6 px-8 text-center">
-      <div className="text-5xl">🎲</div>
       <div>
         <h1 className="text-2xl font-bold">Tonight's bill</h1>
         <p className="mt-1 text-3xl font-bold tabular-nums">
