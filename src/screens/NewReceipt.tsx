@@ -6,8 +6,6 @@ import { choosePayingItem, type Item } from "../lib/expectorant";
 import { displayName, type Me } from "../lib/identity";
 import ReceiptDetail from "../components/ReceiptDetail";
 
-type BoxedItem = Item & { box?: number[] };
-
 // "split" appears only when the drawn item has duplicate units (e.g. 4 lagers):
 // the table assigns who's 1..K, then we pick one slot uniformly.
 type Stage = "reading" | "rolling" | "split" | "result" | "share" | "error";
@@ -30,7 +28,7 @@ export default function NewReceipt({
 
   const [stage, setStage] = useState<Stage>("reading");
   const [error, setError] = useState<string>("");
-  const [chosen, setChosen] = useState<BoxedItem | null>(null);
+  const [chosen, setChosen] = useState<Item | null>(null);
   const [scanName, setScanName] = useState(""); // item flashing during the roll
   const [dupCount, setDupCount] = useState(1); // # of identical units of the drawn item
   const [dupIndex, setDupIndex] = useState(0); // drawn slot [1..dupCount], 0 = undrawn
@@ -53,11 +51,11 @@ export default function NewReceipt({
       const ocr = await itemize({ imageBase64: base64, mimeType });
 
       // Expand quantities into individual {name, cost} units (two steaks = two rolls).
-      const units: BoxedItem[] = [];
+      const units: Item[] = [];
       for (const it of ocr.items) {
         const q = Math.max(1, Math.round(it.quantity || 1));
         for (let i = 0; i < q; i++)
-          units.push({ name: it.name, cost: it.price / q, box: it.box });
+          units.push({ name: it.name, cost: it.price / q });
       }
       if (units.length === 0) throw new Error("No items found");
 
@@ -76,7 +74,7 @@ export default function NewReceipt({
         total: ocr.total,
       });
       setMealId(id);
-      setChosen(outcome.chosen as BoxedItem);
+      setChosen(outcome.chosen);
 
       // How many identical units share the drawn item? If >1, the buyer is
       // ambiguous → go to the split screen to break the tie fairly.

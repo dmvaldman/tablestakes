@@ -1,14 +1,12 @@
-import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import type { Me } from "../lib/identity";
-import { friendStats, type MealView } from "../lib/stats";
+import { firstNameOf, type Me } from "../lib/identity";
+import { friendStats } from "../lib/stats";
+import { money } from "../lib/format";
+import { useMyMeals } from "../lib/useMyMeals";
 import Avatar from "../components/Avatar";
 
 // Per-friend tallies that should converge as overlapping meals accumulate.
 export default function Friends({ me }: { me: Me }) {
-  const meals = useQuery(api.meals.mealsForUser, { userId: me.id }) as
-    | MealView[]
-    | undefined;
+  const meals = useMyMeals(me);
 
   if (meals === undefined)
     return <p className="pt-8 text-on-surface-variant">Loading…</p>;
@@ -43,7 +41,7 @@ export default function Friends({ me }: { me: Me }) {
           <div className="mt-3 grid grid-cols-2 gap-2.5">
             <StatTile label="You paid" amount={money(s.amountYouPaid)} />
             <StatTile
-              label={`${firstName(s.name)} paid`}
+              label={`${firstNameOf(s.name)} paid`}
               amount={money(s.amountTheyPaid)}
             />
           </div>
@@ -62,14 +60,4 @@ function StatTile({ label, amount }: { label: string; amount: string }) {
       <p className="mt-0.5 text-lg font-semibold tabular-nums">{amount}</p>
     </div>
   );
-}
-
-function firstName(name: string): string {
-  return name.trim().split(/\s+/)[0] || name;
-}
-
-// $150 (no cents when round) / $276.46 (cents when present).
-function money(n: number): string {
-  const cents = Math.round(n * 100);
-  return cents % 100 === 0 ? `$${cents / 100}` : `$${(cents / 100).toFixed(2)}`;
 }

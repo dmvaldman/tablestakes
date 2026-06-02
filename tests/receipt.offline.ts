@@ -96,8 +96,8 @@ const meals: MealView[] = [
 ];
 const [s] = friendStats(meals, me);
 check("friend stats: 2 meals together", s.timesTogether === 2);
-check("friend stats: you paid 1 ($131.19)", s.timesYouPaid === 1 && Math.abs(s.amountYouPaid - 131.19) < 1e-9);
-check("friend stats: they paid 1 ($80)", s.timesTheyPaid === 1 && s.amountTheyPaid === 80);
+check("friend stats: you paid $131.19", Math.abs(s.amountYouPaid - 131.19) < 1e-9);
+check("friend stats: they paid $80", s.amountTheyPaid === 80);
 
 console.log(failed ? `\n✗ ${failed} check(s) failed` : "\n✓ all checks passed");
 process.exit(failed ? 1 : 0);

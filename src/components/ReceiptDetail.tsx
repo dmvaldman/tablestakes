@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { firstNameOf, type Me } from "../lib/identity";
+import { money } from "../lib/format";
 import Avatar from "./Avatar";
 
 // Full receipt view: date, total, attendees, who paid (confirmable if not yet),
@@ -60,7 +61,7 @@ export default function ReceiptDetail({
               })}
             </p>
             <p className="mt-1 text-4xl font-semibold tabular-nums">
-              ${meal.total.toFixed(2)}
+              {money(meal.total)}
             </p>
           </div>
 

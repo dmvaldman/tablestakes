@@ -1,17 +1,14 @@
 import { useState } from "react";
-import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import type { Me } from "../lib/identity";
-import type { MealView } from "../lib/stats";
+import { money } from "../lib/format";
+import { useMyMeals } from "../lib/useMyMeals";
 import Avatar from "../components/Avatar";
 import ReceiptDetail from "../components/ReceiptDetail";
 
 // Timeline of bubbles (date · total · paid by); tap one for the full detail.
 export default function Receipts({ me }: { me: Me }) {
-  const meals = useQuery(api.meals.mealsForUser, { userId: me.id }) as
-    | MealView[]
-    | undefined;
+  const meals = useMyMeals(me);
   const [openId, setOpenId] = useState<Id<"meals"> | null>(null);
 
   if (meals === undefined)
@@ -50,7 +47,7 @@ export default function Receipts({ me }: { me: Me }) {
                   })}
                 </span>
                 <span className="text-lg font-semibold tabular-nums">
-                  ${m.total.toFixed(2)}
+                  {money(m.total)}
                 </span>
               </button>
             </li>

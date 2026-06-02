@@ -15,9 +15,7 @@ export type FriendStat = {
   userId: string;
   name: string;
   timesTogether: number;
-  timesYouPaid: number; // meals (shared with them) where YOU were the payer
-  timesTheyPaid: number;
-  amountYouPaid: number;
+  amountYouPaid: number; // $ you paid in meals shared with them
   amountTheyPaid: number;
 };
 
@@ -41,8 +39,6 @@ export function friendStats(meals: MealView[], myId: string): FriendStat[] {
           userId: p.userId,
           name: p.name,
           timesTogether: 0,
-          timesYouPaid: 0,
-          timesTheyPaid: 0,
           amountYouPaid: 0,
           amountTheyPaid: 0,
         };
@@ -51,10 +47,8 @@ export function friendStats(meals: MealView[], myId: string): FriendStat[] {
       s.name = p.name; // keep latest label
       s.timesTogether += 1;
       if (iPaid) {
-        s.timesYouPaid += 1;
         s.amountYouPaid += meal.total;
       } else if (meal.payerId === p.userId) {
-        s.timesTheyPaid += 1;
         s.amountTheyPaid += meal.total;
       }
     }

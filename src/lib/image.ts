@@ -1,7 +1,7 @@
 // Downscale a captured photo to a reasonably-sized JPEG before OCR/display.
 // Phone cameras produce huge multi-MB images; ~1600px on the long edge keeps
-// receipt text legible (and Gemini's bounding boxes accurate) at a fraction of
-// the bytes. Returns a `data:image/jpeg;base64,...` URL.
+// receipt text legible at a fraction of the bytes. Returns a
+// `data:image/jpeg;base64,...` URL.
 
 async function loadDrawable(
   file: File,

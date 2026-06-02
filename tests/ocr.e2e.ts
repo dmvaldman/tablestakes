@@ -110,14 +110,6 @@ async function main() {
     );
   }
 
-  // most items carry a bounding box (for highlighting)
-  const withBox = ocr.items.filter((it) => it.box?.length === 4).length;
-  check(
-    "most items have a 4-number box",
-    withBox >= Math.ceil(ocr.items.length / 2),
-    `${withBox}/${ocr.items.length}`,
-  );
-
   // the lager line should reflect quantity 4 (either qty=4, or 4 separate units)
   const lagerUnits = ocr.items
     .filter((it) => /lager|pint|beer/i.test(it.name))

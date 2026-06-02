@@ -5,8 +5,6 @@ export type OcrItem = {
   name: string;
   price: number; // total price for the given quantity
   quantity: number;
-  /** [ymin, xmin, ymax, xmax] normalized 0–1000, for highlighting on the photo */
-  box?: number[];
 };
 export type ReceiptOcr = { currency?: string; total: number; items: OcrItem[] };
 
@@ -30,11 +28,6 @@ export const RESPONSE_SCHEMA = {
             description: "line price for the whole quantity",
           },
           quantity: { type: "integer" },
-          box: {
-            type: "array",
-            description: "[ymin, xmin, ymax, xmax] normalized 0–1000",
-            items: { type: "number" },
-          },
         },
         required: ["name", "price", "quantity"],
       },
@@ -46,10 +39,8 @@ export const RESPONSE_SCHEMA = {
 export const OCR_PROMPT = `You are reading a restaurant receipt photo. Extract
 ONLY the ordered food/drink line items — never the subtotal, tax, tip, total, or
 service rows. For each item give its name, its printed line price, and its
-quantity. Also give "box": the bounding box of that line on the image as
-[ymin, xmin, ymax, xmax] normalized to 0–1000. Separately return "total": the
-grand total AFTER tax but BEFORE any tip. Use plain numbers (no currency
-symbols).`;
+quantity. Separately return "total": the grand total AFTER tax but BEFORE any
+tip. Use plain numbers (no currency symbols).`;
 
 // Statuses where the model is just busy/transient — worth trying another model.
 const RETRYABLE_STATUS = new Set([429, 500, 503]);
