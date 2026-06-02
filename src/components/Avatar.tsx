@@ -40,16 +40,17 @@ export default function Avatar({
   const fontScale = label.length === 2 ? 0.38 : 0.44;
   return (
     <div
-      className="flex shrink-0 select-none items-center justify-center rounded-full font-medium tracking-tight"
+      className="flex shrink-0 select-none items-center justify-center rounded-full font-medium leading-none tracking-tight"
       style={{
         background: bg,
         color: fg,
         width: size,
         height: size,
         fontSize: size * fontScale,
+        lineHeight: 1,
       }}
     >
-      {label}
+      <span className="block translate-y-[0.04em]">{label}</span>
     </div>
   );
 }

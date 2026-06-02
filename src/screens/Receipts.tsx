@@ -16,9 +16,10 @@ export default function Receipts({ me }: { me: Me }) {
   if (meals.length === 0)
     return (
       <div className="flex flex-col items-center pt-24 text-center text-on-surface-variant">
-        <div className="text-5xl">🧾</div>
-        <p className="mt-4 text-on-surface">No receipts yet</p>
-        <p className="mt-1 text-sm">Tap the + to settle your next meal.</p>
+        <p className="text-xl font-medium text-on-surface">No receipts yet</p>
+        <p className="mt-1 text-lg">
+          Tap + and take an image of your receipt
+        </p>
       </div>
     );
 

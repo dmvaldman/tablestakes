@@ -12,7 +12,7 @@ export default function BottomNav({
     { key: "friends", label: "Friends" },
   ];
   return (
-    <nav className="flex shrink-0 divide-x divide-outline-variant border-t border-outline-variant bg-surface-container pb-[env(safe-area-inset-bottom)]">
+    <nav className="flex shrink-0 divide-x divide-outline-variant border-t border-outline-variant bg-surface pb-[env(safe-area-inset-bottom)]">
       {items.map((it) => (
         <button
           key={it.key}

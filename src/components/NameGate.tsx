@@ -8,7 +8,7 @@ export default function NameGate({ onSet }: { onSet: (me: Me) => void }) {
       <div className="animate-pop">
         <h1 className="text-5xl font-bold tracking-tight">TableStakes</h1>
         <p className="mt-4 text-lg text-on-surface-variant">
-          Split a bill the fast and fun way — by chance!
+          Split a bill the fun way — by chance!
         </p>
       </div>
       <IdentityForm

@@ -152,9 +152,10 @@ export default function NewReceipt({
 
         {/* error overlay */}
         {stage === "error" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-surface/95 p-8 text-center">
-            <p className="text-4xl">🧾</p>
-            <p className="font-medium text-on-surface">{friendlyError(error)}</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-surface/95 p-8 text-center">
+            <p className="text-lg font-medium text-on-surface">
+              {friendlyError(error)}
+            </p>
             <button
               onClick={onRetake}
               className="mt-2 rounded-full bg-primary px-6 py-2.5 font-medium text-on-primary"

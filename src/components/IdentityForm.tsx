@@ -23,24 +23,21 @@ export default function IdentityForm({
         if (first.trim() && last.trim()) onSubmit(first, last);
       }}
     >
-      <div className="flex gap-3">
-        <input
-          autoFocus
-          value={first}
-          onChange={(e) => setFirst(e.target.value)}
-          placeholder="First name"
-          className="min-w-0 flex-1 rounded-2xl border border-outline-variant bg-surface-container px-4 py-3.5 text-lg outline-none focus:border-primary"
-        />
-        <input
-          value={last}
-          onChange={(e) => setLast(e.target.value.toUpperCase().slice(0, 1))}
-          placeholder="L"
-          maxLength={1}
-          autoCapitalize="characters"
-          aria-label="Last initial"
-          className="w-16 rounded-2xl border border-outline-variant bg-surface-container px-2 py-3.5 text-center text-lg font-medium outline-none focus:border-primary"
-        />
-      </div>
+      <input
+        autoFocus
+        value={first}
+        onChange={(e) => setFirst(e.target.value)}
+        placeholder="First name"
+        className="rounded-2xl border border-outline-variant bg-surface-container px-4 py-3.5 text-lg outline-none focus:border-primary"
+      />
+      <input
+        value={last}
+        onChange={(e) => setLast(e.target.value.toUpperCase().slice(0, 1))}
+        placeholder="Last initial"
+        maxLength={1}
+        autoCapitalize="characters"
+        className="rounded-2xl border border-outline-variant bg-surface-container px-4 py-3.5 text-lg outline-none focus:border-primary"
+      />
       <button
         type="submit"
         disabled={!first.trim() || !last.trim()}

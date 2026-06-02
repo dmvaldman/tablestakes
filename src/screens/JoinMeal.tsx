@@ -52,7 +52,7 @@ export default function JoinMeal({
 
       {payerName ? (
         <p className="text-lg">
-          <span className="font-semibold">{payerName}</span> paid this one. 🙌
+          <span className="font-semibold">{payerName}</span> paid this one.
         </p>
       ) : (
         <div className="w-full">
