@@ -1,13 +1,11 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { loadMe, saveMe, clearMe, displayName, type Me } from "./lib/identity";
 import NameGate from "./components/NameGate";
 import Avatar from "./components/Avatar";
 import IdentityForm from "./components/IdentityForm";
-
-// Lazy so KaTeX (used only here) stays out of the main bundle.
-const HowItWorks = lazy(() => import("./components/HowItWorks"));
+import HowItWorks from "./components/HowItWorks";
 import BottomNav, { type Tab } from "./components/BottomNav";
 import CameraCapture from "./components/CameraCapture";
 import Receipts from "./screens/Receipts";
@@ -131,11 +129,7 @@ export default function App() {
         />
       )}
 
-      {showHelp && (
-        <Suspense fallback={null}>
-          <HowItWorks onClose={() => setShowHelp(false)} />
-        </Suspense>
-      )}
+      {showHelp && <HowItWorks onClose={() => setShowHelp(false)} />}
 
       {editing && (
         <div

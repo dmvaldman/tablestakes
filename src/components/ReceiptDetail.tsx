@@ -3,7 +3,6 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { firstNameOf, type Me } from "../lib/identity";
-import { money } from "../lib/format";
 import Avatar from "./Avatar";
 
 // Full receipt view: date, total, attendees, who paid (confirmable if not yet),
@@ -51,20 +50,6 @@ export default function ReceiptDetail({
 
       {meal && (
         <div className="flex-1 overflow-y-auto p-5">
-          {/* date + total */}
-          <div className="text-center">
-            <p className="text-sm text-on-surface-variant">
-              {new Date(meal.createdAt).toLocaleDateString(undefined, {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
-            <p className="mt-1 text-4xl font-semibold tabular-nums">
-              {money(meal.total)}
-            </p>
-          </div>
-
           {/* who paid (confirmable if nobody has yet) */}
           <Section label="Paid by">
             {payerId ? (
@@ -150,7 +135,7 @@ function Section({
 }) {
   return (
     <div className="mt-6">
-      <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-on-surface-variant">
+      <h3 className="mb-2 text-base font-semibold uppercase tracking-wide text-on-surface-variant">
         {label}
       </h3>
       {children}

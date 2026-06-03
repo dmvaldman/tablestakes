@@ -190,6 +190,14 @@ export default function NewReceipt({
         )}
       </div>
 
+      {/* Reserve the camera's shutter-bar space (button removed) so the photo
+          stays the same size as the live feed after capture — no jump. */}
+      {showScan && (
+        <div className="flex items-center justify-center bg-surface py-5">
+          <div className="h-16 w-16" />
+        </div>
+      )}
+
       {/* split screen: break a tie among K identical units */}
       {stage === "split" && chosen && (
         <div className="border-t border-outline-variant bg-surface p-5">

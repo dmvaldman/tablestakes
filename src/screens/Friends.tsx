@@ -55,7 +55,7 @@ export default function Friends({ me }: { me: Me }) {
 function StatTile({ label, amount }: { label: string; amount: string }) {
   return (
     <div className="rounded-xl bg-surface p-3">
-      <p className="truncate text-xs uppercase tracking-wide text-on-surface-variant">
+      <p className="truncate text-sm uppercase tracking-wide text-on-surface-variant">
         {label}
       </p>
       <p className="mt-0.5 text-lg font-semibold tabular-nums">{amount}</p>
