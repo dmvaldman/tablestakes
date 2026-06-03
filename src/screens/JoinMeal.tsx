@@ -42,7 +42,7 @@ export default function JoinMeal({
     meal.participants.find((p) => p.userId === meal.payerId)?.name;
 
   return (
-    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col px-8 pb-10 pt-14 text-center">
+    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col border-outline-variant px-8 pb-10 pt-14 text-center md:border-x">
       <h1 className="text-4xl font-bold tracking-tight">TableStakes</h1>
 
       <div className="flex flex-1 flex-col items-center justify-center gap-8">

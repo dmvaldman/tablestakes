@@ -69,7 +69,7 @@ export default function App() {
   }
 
   return (
-    <div className="mx-auto flex h-[100svh] max-w-md flex-col overflow-hidden bg-surface text-on-surface">
+    <div className="relative mx-auto flex h-[100svh] max-w-md flex-col overflow-hidden border-outline-variant bg-surface text-on-surface md:border-x">
       <header className="flex shrink-0 items-center justify-between bg-surface px-5 pt-5 pb-3">
         <h1 className="text-2xl font-medium tracking-tight">TableStakes</h1>
         <div className="flex items-center gap-3">
@@ -100,7 +100,7 @@ export default function App() {
       <button
         onClick={() => setCapturing(true)}
         aria-label="New receipt"
-        className="fixed bottom-24 right-5 z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-container text-3xl leading-none text-on-primary-container shadow-m3 transition active:scale-95"
+        className="absolute bottom-24 right-5 z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-container text-3xl leading-none text-on-primary-container shadow-m3 transition active:scale-95"
       >
         +
       </button>

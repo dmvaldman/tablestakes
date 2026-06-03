@@ -118,7 +118,7 @@ export default function NewReceipt({
   const showScan = stage === "reading" || stage === "rolling";
 
   return (
-    <div className="fixed inset-0 z-20 mx-auto flex max-w-md flex-col bg-black">
+    <div className="fixed inset-0 z-20 mx-auto flex max-w-md flex-col border-outline-variant bg-black md:border-x">
       <ModalHeader title="New receipt" onClose={onClose} />
 
       {/* Photo + overlays. Shown full-bleed like the camera so the transition

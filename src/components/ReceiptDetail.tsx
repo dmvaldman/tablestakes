@@ -40,7 +40,7 @@ export default function ReceiptDetail({
     : null;
 
   return (
-    <div className="fixed inset-0 z-30 mx-auto flex max-w-md flex-col bg-surface">
+    <div className="fixed inset-0 z-30 mx-auto flex max-w-md flex-col border-outline-variant bg-surface md:border-x">
       <ModalHeader title="Receipt" onClose={onClose} />
 
       {meal && (
