@@ -13,13 +13,11 @@ export default function HowItWorks({ onClose }: { onClose: () => void }) {
         </h2>
         <div className="mt-4 space-y-3 text-lg text-on-surface-variant">
           <p>
-            One person pays for the table, but they're chosen according to how
-            much they owe. So even though one person pays in reality, everyone
-            pays their share "in expectation".
+            One person pays for the table, but they're chosen according to what they owe.
+            So even though one person pays in reality, everyone pays "in expectation".
           </p>
           <p>
-            If you keep eating with the same people, it will all work out in the
-            end.
+            If you keep eating with the same people, it will all work out in the end.
           </p>
         </div>
 
@@ -35,14 +33,16 @@ export default function HowItWorks({ onClose }: { onClose: () => void }) {
               single item!
             </p>
             <p>
-              As long as we have a method where the probability a diner pays
+              As long as we have a method where the chance a diner pays
               equals their share of the bill, we're good. Now, picture the bill
-              as a line from 0 to the total, with each item laid out as a segment
+              as a line from 0 to the bill's total, with each item laid out as a segment
               with length equal to its cost. Throw a dart at the line: the
               chance it lands on a diner's item is exactly their share of the
-              bill. So we lay out the items, throw a random dart, and whoever
-              owns the segment it hits covers the meal. It makes you scratch your
-              head, but it works. And there's no way to cheat!
+              bill. So we don't actually need to know who purchased every item,
+              we only need to know who purchased the item the dart landed on.
+            </p>
+            <p>
+              That's it! There's no way to cheat!
             </p>
           </div>
 
