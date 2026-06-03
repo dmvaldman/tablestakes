@@ -69,7 +69,7 @@ export default function App() {
   }
 
   return (
-    <div className="relative mx-auto flex h-[100svh] max-w-md flex-col overflow-hidden border-outline-variant bg-surface text-on-surface md:border-x">
+    <div className="relative flex h-[100svh] flex-col overflow-hidden bg-surface text-on-surface">
       <header className="flex shrink-0 items-center justify-between bg-surface px-5 pt-5 pb-3">
         <h1 className="text-2xl font-medium tracking-tight">TableStakes</h1>
         <div className="flex items-center gap-3">

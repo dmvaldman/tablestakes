@@ -3,7 +3,7 @@ import ModalHeader from "./ModalHeader";
 // Plain-language overview of how TableStakes works.
 export default function HowItWorks({ onClose }: { onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-40 mx-auto flex max-w-md flex-col border-outline-variant bg-surface text-left md:border-x">
+    <div className="fixed inset-0 z-40 flex flex-col bg-surface text-left">
       <ModalHeader title="How it works" onClose={onClose} />
 
       <div className="flex-1 overflow-y-auto px-5 py-6">

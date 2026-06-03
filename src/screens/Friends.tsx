@@ -14,7 +14,7 @@ export default function Friends({ me }: { me: Me }) {
 
   if (stats.length === 0)
     return (
-      <div className="flex flex-col items-center pt-24 text-center text-on-surface-variant">
+      <div className="flex h-full flex-col items-center justify-center text-center text-on-surface-variant">
         <p className="text-xl font-medium text-on-surface">
           No dining companions yet
         </p>

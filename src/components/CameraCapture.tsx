@@ -83,7 +83,7 @@ export default function CameraCapture({
   }
 
   return (
-    <div className="fixed inset-0 z-30 mx-auto flex max-w-md flex-col border-outline-variant bg-black md:border-x">
+    <div className="fixed inset-0 z-30 flex flex-col bg-black">
       {/* banner above the feed — same ModalHeader as New receipt so the
           transition after capture doesn't shift */}
       <ModalHeader title="Take a picture of the receipt" onClose={onClose} />

@@ -42,7 +42,7 @@ export default function JoinMeal({
     meal.participants.find((p) => p.userId === meal.payerId)?.name;
 
   return (
-    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col border-outline-variant px-8 pb-10 pt-14 text-center md:border-x">
+    <div className="flex min-h-[100svh] flex-col px-8 pb-10 pt-14 text-center">
       <h1 className="text-4xl font-bold tracking-tight">TableStakes</h1>
 
       <div className="flex flex-1 flex-col items-center justify-center gap-8">
@@ -118,7 +118,7 @@ export default function JoinMeal({
 
 function Centered({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-[100svh] max-w-md items-center justify-center px-8 text-center text-on-surface-variant">
+    <div className="flex min-h-[100svh] items-center justify-center px-8 text-center text-on-surface-variant">
       {children}
     </div>
   );
