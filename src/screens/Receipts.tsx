@@ -4,6 +4,7 @@ import type { Me } from "../lib/identity";
 import { money } from "../lib/format";
 import { useMyMeals } from "../lib/useMyMeals";
 import Avatar from "../components/Avatar";
+import Spinner from "../components/Spinner";
 import ReceiptDetail from "../components/ReceiptDetail";
 
 // Timeline of bubbles (date · total · paid by); tap one for the full detail.
@@ -11,8 +12,7 @@ export default function Receipts({ me }: { me: Me }) {
   const meals = useMyMeals(me);
   const [openId, setOpenId] = useState<Id<"meals"> | null>(null);
 
-  if (meals === undefined)
-    return <p className="pt-8 text-on-surface-variant">Loading…</p>;
+  if (meals === undefined) return <Spinner />;
   if (meals.length === 0)
     return (
       <div className="flex h-full flex-col items-center justify-center text-center text-on-surface-variant">

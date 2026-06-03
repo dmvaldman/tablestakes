@@ -3,13 +3,13 @@ import { friendStats } from "../lib/stats";
 import { money } from "../lib/format";
 import { useMyMeals } from "../lib/useMyMeals";
 import Avatar from "../components/Avatar";
+import Spinner from "../components/Spinner";
 
 // Per-friend tallies that should converge as overlapping meals accumulate.
 export default function Friends({ me }: { me: Me }) {
   const meals = useMyMeals(me);
 
-  if (meals === undefined)
-    return <p className="pt-8 text-on-surface-variant">Loading…</p>;
+  if (meals === undefined) return <Spinner />;
   const stats = friendStats(meals, me.id);
 
   if (stats.length === 0)
