@@ -126,22 +126,10 @@ export default function NewReceipt({
       <div className="relative flex-1 overflow-hidden bg-black">
         <img src={image} alt="receipt" className="h-full w-full object-cover" />
 
-        {/* scanning overlay during OCR + roll */}
+        {/* scanning animation over the photo (text lives in the bottom bar) */}
         {showScan && (
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]">
             <div className="absolute inset-x-0 h-0.5 animate-scan bg-primary shadow-[0_0_12px_2px] shadow-primary" />
-            <div className="absolute inset-x-0 bottom-24 text-center">
-              <p className="text-xl font-medium text-white/90">
-                {stage === "reading"
-                  ? "Reading the receipt…"
-                  : "Rolling the dice…"}
-              </p>
-              {stage === "rolling" && (
-                <p className="mt-1 text-2xl font-medium text-white">
-                  {scanName}
-                </p>
-              )}
-            </div>
           </div>
         )}
 
@@ -185,11 +173,20 @@ export default function NewReceipt({
         )}
       </div>
 
-      {/* Reserve the camera's shutter-bar space (button removed) so the photo
-          stays the same size as the live feed after capture — no jump. */}
+      {/* Status text in the camera's shutter-bar slot — same py-5 + h-16
+          footprint so the photo stays the size it was in the live feed. */}
       {showScan && (
         <div className="flex items-center justify-center bg-surface py-5">
-          <div className="h-16 w-16" />
+          <div className="flex h-16 flex-col items-center justify-center text-center">
+            <p className="text-xl font-medium text-on-surface-variant">
+              {stage === "reading"
+                ? "Reading the receipt…"
+                : "Rolling the dice…"}
+            </p>
+            {stage === "rolling" && (
+              <p className="text-2xl font-medium text-on-surface">{scanName}</p>
+            )}
+          </div>
         </div>
       )}
 
