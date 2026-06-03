@@ -5,6 +5,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { choosePayingItem, type Item } from "../lib/tablestakes";
 import { displayName, type Me } from "../lib/identity";
 import ReceiptDetail from "../components/ReceiptDetail";
+import ModalHeader from "../components/ModalHeader";
 
 // "split" appears only when the drawn item has duplicate units (e.g. 4 lagers):
 // the table assigns who's 1..K, then we pick one slot uniformly.
@@ -118,13 +119,7 @@ export default function NewReceipt({
 
   return (
     <div className="fixed inset-0 z-20 mx-auto flex max-w-md flex-col bg-black">
-      <header className="flex items-center justify-between border-b border-outline-variant bg-surface px-5 py-4">
-        <button onClick={onClose} className="text-on-surface-variant">
-          Close
-        </button>
-        <span className="font-medium">New receipt</span>
-        <span className="w-10" />
-      </header>
+      <ModalHeader title="New receipt" onClose={onClose} />
 
       {/* Photo + overlays. Shown full-bleed like the camera so the transition
           from the live view doesn't jump. We never store the image. */}

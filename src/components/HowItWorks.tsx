@@ -1,14 +1,10 @@
+import ModalHeader from "./ModalHeader";
+
 // Plain-language overview of how TableStakes works.
 export default function HowItWorks({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-40 mx-auto flex max-w-md flex-col bg-surface text-left">
-      <header className="flex items-center justify-between border-b border-outline-variant px-5 py-4">
-        <button onClick={onClose} className="text-on-surface-variant">
-          Close
-        </button>
-        <span className="font-medium">How it works</span>
-        <span className="w-10" />
-      </header>
+      <ModalHeader title="How it works" onClose={onClose} />
 
       <div className="flex-1 overflow-y-auto px-5 py-6">
         {/* lead */}
@@ -60,62 +56,6 @@ export default function HowItWorks({ onClose }: { onClose: () => void }) {
           </a>
         </section>
       </div>
-    </div>
-  );
-}
-
-// Illustration: the bill as a line of item-segments, with a dart landing on one.
-function BillBar() {
-  const slices = [
-    { pct: 33, color: "#4F378B" },
-    { pct: 21, color: "#00504A", hit: true },
-    { pct: 27, color: "#7A2E10" },
-    { pct: 19, color: "#28386E" },
-  ];
-
-  // dart x-position = center of the slice it lands on
-  let acc = 0;
-  let dartX = 50;
-  for (const s of slices) {
-    if (s.hit) {
-      dartX = acc + s.pct / 2;
-      break;
-    }
-    acc += s.pct;
-  }
-
-  return (
-    <div className="mt-5 rounded-2xl bg-surface-container p-4">
-      <div className="relative pt-7">
-        {/* dart marker */}
-        <div
-          className="absolute top-0 flex -translate-x-1/2 flex-col items-center"
-          style={{ left: `${dartX}%` }}
-        >
-          <span className="text-xs font-semibold text-primary">dart</span>
-          <span className="mt-0.5 h-0 w-0 border-x-[5px] border-t-[8px] border-x-transparent border-t-primary" />
-        </div>
-
-        {/* the bill as item-segments */}
-        <div className="flex h-10 overflow-hidden rounded-lg">
-          {slices.map((s, i) => (
-            <div
-              key={i}
-              style={{ width: `${s.pct}%`, background: s.color }}
-              className={s.hit ? "ring-2 ring-inset ring-white" : ""}
-            />
-          ))}
-        </div>
-
-        <div className="mt-1.5 flex justify-between text-xs text-on-surface-variant">
-          <span>$0</span>
-          <span>total</span>
-        </div>
-      </div>
-
-      <p className="mt-3 text-center text-sm text-on-surface-variant">
-        Each slice is an item — the dart picks one, and its owner pays.
-      </p>
     </div>
   );
 }

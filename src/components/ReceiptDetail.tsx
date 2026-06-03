@@ -4,6 +4,7 @@ import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { firstNameOf, type Me } from "../lib/identity";
 import Avatar from "./Avatar";
+import ModalHeader from "./ModalHeader";
 
 // Full receipt view: date, total, attendees, who paid (confirmable if not yet),
 // and the spelled-out share link. Used after a draw and from the Receipts list.
@@ -40,13 +41,7 @@ export default function ReceiptDetail({
 
   return (
     <div className="fixed inset-0 z-30 mx-auto flex max-w-md flex-col bg-surface">
-      <header className="flex items-center justify-between border-b border-outline-variant px-5 py-4">
-        <button onClick={onClose} className="text-on-surface-variant">
-          Close
-        </button>
-        <span className="font-medium">Receipt</span>
-        <span className="w-10" />
-      </header>
+      <ModalHeader title="Receipt" onClose={onClose} />
 
       {meal && (
         <div className="flex-1 overflow-y-auto p-5">

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { downscaleToJpeg } from "../lib/image";
 import { reportError } from "../lib/errorOverlay";
+import ModalHeader from "./ModalHeader";
 
 // In-app camera so we control the UI (banner, framing guide, shutter). Outputs
 // an already-downscaled JPEG data URL. Falls back to the native file picker if
@@ -83,17 +84,9 @@ export default function CameraCapture({
 
   return (
     <div className="fixed inset-0 z-30 mx-auto flex max-w-md flex-col bg-black">
-      {/* banner above the feed — matches the New receipt header so the
+      {/* banner above the feed — same ModalHeader as New receipt so the
           transition after capture doesn't shift */}
-      <div className="flex items-center justify-between border-b border-outline-variant bg-surface px-5 py-4">
-        <button onClick={onClose} className="text-on-surface-variant">
-          Close
-        </button>
-        <span className="font-medium text-on-surface">
-          Take a picture of the receipt
-        </span>
-        <span className="w-10" />
-      </div>
+      <ModalHeader title="Take a picture of the receipt" onClose={onClose} />
 
       {/* live feed + overlay guide */}
       <div className="relative flex-1 overflow-hidden bg-black">
