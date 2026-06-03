@@ -3,6 +3,7 @@ import { useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { loadMe, saveMe, clearMe, displayName, type Me } from "./lib/identity";
 import NameGate from "./components/NameGate";
+import Instructions from "./components/Instructions";
 import Avatar from "./components/Avatar";
 import IdentityForm from "./components/IdentityForm";
 import HowItWorks from "./components/HowItWorks";
@@ -34,6 +35,7 @@ export default function App() {
   const [captured, setCaptured] = useState<string | null>(null); // photo data URL
   const [editing, setEditing] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [onboarded, setOnboarded] = useState(false); // dismissed first-run instructions
   const renameUser = useMutation(api.meals.renameUser);
   const mealId = sharedMealId();
 
@@ -53,7 +55,13 @@ export default function App() {
     return () => window.removeEventListener("popstate", onPop);
   }, []);
 
-  if (!me) return <NameGate onSet={setMe} />;
+  if (!me) {
+    // First-run instructions on the home route only — never on a share link
+    // (those visitors just need a name to join). Skipped once you have a name.
+    if (!mealId && !onboarded)
+      return <Instructions onContinue={() => setOnboarded(true)} />;
+    return <NameGate onSet={setMe} />;
+  }
 
   if (mealId) {
     return (
