@@ -73,7 +73,6 @@ const alex = "alex";
 const meals: MealView[] = [
   {
     _id: "m1",
-    creatorId: me,
     createdAt: 2,
     total: 131.19,
     payerId: me,
@@ -84,7 +83,6 @@ const meals: MealView[] = [
   },
   {
     _id: "m2",
-    creatorId: alex,
     createdAt: 1,
     total: 80,
     payerId: alex,

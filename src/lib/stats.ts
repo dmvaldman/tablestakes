@@ -4,7 +4,6 @@ export type Participant = { userId: string; name: string };
 
 export type MealView = {
   _id: string;
-  creatorId: string;
   createdAt: number;
   total: number;
   payerId: string | null;

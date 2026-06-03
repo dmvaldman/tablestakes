@@ -1,9 +1,45 @@
-import { mutation, query } from "./_generated/server";
+import {
+  mutation,
+  query,
+  type MutationCtx,
+  type QueryCtx,
+} from "./_generated/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 
+// Create or update a person's display name. Called whenever someone appears
+// (creates or joins a meal) and on rename — the name lives only here.
+async function upsertUser(ctx: MutationCtx, userId: string, name: string) {
+  const existing = await ctx.db
+    .query("users")
+    .withIndex("by_userId", (q) => q.eq("userId", userId))
+    .unique();
+  if (existing) {
+    if (existing.name !== name) await ctx.db.patch(existing._id, { name });
+  } else {
+    await ctx.db.insert("users", { userId, name });
+  }
+}
+
+// Join the diners of a meal to their current names in `users`.
+async function dinersWithNames(ctx: QueryCtx, mealId: Id<"meals">) {
+  const rows = await ctx.db
+    .query("diners")
+    .withIndex("by_meal", (q) => q.eq("mealId", mealId))
+    .collect();
+  const participants: { userId: string; name: string }[] = [];
+  for (const r of rows) {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", r.userId))
+      .unique();
+    participants.push({ userId: r.userId, name: user?.name ?? "?" });
+  }
+  return participants;
+}
+
 // Create a meal once the algorithm has run on the creator's device. We store
-// only the total + the creator as the first participant. The payer is unknown
+// only the total, and add the creator as the first diner. The payer is unknown
 // at this point (we only know which ITEM was chosen, not who bought it).
 export const createMeal = mutation({
   args: {
@@ -12,42 +48,33 @@ export const createMeal = mutation({
     total: v.number(),
   },
   handler: async (ctx, { creatorId, creatorName, total }) => {
+    await upsertUser(ctx, creatorId, creatorName);
     const mealId = await ctx.db.insert("meals", {
-      creatorId,
       createdAt: Date.now(),
       total,
       payerId: null,
     });
-    await ctx.db.insert("participations", {
-      mealId,
-      userId: creatorId,
-      name: creatorName,
-    });
+    await ctx.db.insert("diners", { mealId, userId: creatorId });
     return mealId;
   },
 });
 
-// A friend opens the share link and claims their slot (or re-opens it). Names
-// are upserted so a rename propagates. Idempotent per (meal, user).
+// A friend opens the share link and joins the meal. Idempotent per (meal, user).
 export const claimParticipant = mutation({
   args: { mealId: v.id("meals"), userId: v.string(), name: v.string() },
   handler: async (ctx, { mealId, userId, name }) => {
+    await upsertUser(ctx, userId, name);
     const existing = await ctx.db
-      .query("participations")
+      .query("diners")
       .withIndex("by_meal_user", (q) =>
         q.eq("mealId", mealId).eq("userId", userId),
       )
       .unique();
-    if (existing) {
-      if (existing.name !== name) await ctx.db.patch(existing._id, { name });
-      return existing._id;
-    }
-    return await ctx.db.insert("participations", { mealId, userId, name });
+    if (!existing) await ctx.db.insert("diners", { mealId, userId });
   },
 });
 
-// Exactly one person confirms they paid. Setting it is last-write-wins; a UI
-// can show who already claimed it. Passing null un-sets (mistap recovery).
+// Exactly one person confirms they paid. Last-write-wins; null un-sets.
 export const confirmPayer = mutation({
   args: { mealId: v.id("meals"), payerId: v.union(v.string(), v.null()) },
   handler: async (ctx, { mealId, payerId }) => {
@@ -55,55 +82,39 @@ export const confirmPayer = mutation({
   },
 });
 
-// Rename: backfill the (denormalized) name on every participation for this
-// user so past meals show the new label everywhere, for everyone.
+// Rename: one row in `users`; every meal picks it up through the join.
 export const renameUser = mutation({
   args: { userId: v.string(), name: v.string() },
   handler: async (ctx, { userId, name }) => {
-    const rows = await ctx.db
-      .query("participations")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
-    for (const r of rows) {
-      if (r.name !== name) await ctx.db.patch(r._id, { name });
-    }
+    await upsertUser(ctx, userId, name);
   },
 });
 
-// A single meal + its participants — for the share/join screen.
+// A single meal + its diners — for the share/join screen.
 export const getMeal = query({
   args: { mealId: v.id("meals") },
   handler: async (ctx, { mealId }) => {
     const meal = await ctx.db.get(mealId);
     if (!meal) return null;
-    const participants = await ctx.db
-      .query("participations")
-      .withIndex("by_meal", (q) => q.eq("mealId", mealId))
-      .collect();
-    return { ...meal, participants };
+    return { ...meal, participants: await dinersWithNames(ctx, mealId) };
   },
 });
 
-// Every meal the user is in, with full participant lists — the one query that
-// powers both the Receipts timeline and all Friends-tab stats (computed
-// client-side from this).
+// Every meal the user is in, with diner lists — powers the Receipts timeline
+// and all Friends-tab stats (computed client-side from this).
 export const mealsForUser = query({
   args: { userId: v.string() },
   handler: async (ctx, { userId }) => {
     const mine = await ctx.db
-      .query("participations")
+      .query("diners")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
 
     const out = [];
-    for (const p of mine) {
-      const meal = await ctx.db.get(p.mealId as Id<"meals">);
+    for (const d of mine) {
+      const meal = await ctx.db.get(d.mealId);
       if (!meal) continue;
-      const participants = await ctx.db
-        .query("participations")
-        .withIndex("by_meal", (q) => q.eq("mealId", meal._id))
-        .collect();
-      out.push({ ...meal, participants });
+      out.push({ ...meal, participants: await dinersWithNames(ctx, meal._id) });
     }
     out.sort((a, b) => b.createdAt - a.createdAt);
     return out;
