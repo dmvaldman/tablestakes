@@ -41,6 +41,14 @@ export default function JoinMeal({
   return (
     <div className="mx-auto flex min-h-[100svh] max-w-md flex-col items-center justify-center gap-6 px-8 text-center">
       <div>
+        <h2 className="text-xl font-bold text-on-surface">TableStakes</h2>
+        <p className="mt-1 text-sm text-on-surface-variant">
+          One person pays each group meal, chosen by chance — fair over time.
+          Here's one you were part of:
+        </p>
+      </div>
+
+      <div>
         <h1 className="text-2xl font-bold">Tonight's bill</h1>
         <p className="mt-1 text-3xl font-bold tabular-nums">
           ${meal.total.toFixed(2)}

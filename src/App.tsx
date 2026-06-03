@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { loadMe, saveMe, clearMe, displayName, type Me } from "./lib/identity";
 import NameGate from "./components/NameGate";
 import Avatar from "./components/Avatar";
 import IdentityForm from "./components/IdentityForm";
+
+// Lazy so KaTeX (used only here) stays out of the main bundle.
+const HowItWorks = lazy(() => import("./components/HowItWorks"));
 import BottomNav, { type Tab } from "./components/BottomNav";
 import CameraCapture from "./components/CameraCapture";
 import Receipts from "./screens/Receipts";
@@ -32,6 +35,7 @@ export default function App() {
   const [capturing, setCapturing] = useState(false); // camera open
   const [captured, setCaptured] = useState<string | null>(null); // photo data URL
   const [editing, setEditing] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const renameUser = useMutation(api.meals.renameUser);
   const mealId = sharedMealId();
 
@@ -70,13 +74,24 @@ export default function App() {
     <div className="mx-auto flex h-[100svh] max-w-md flex-col overflow-hidden bg-surface text-on-surface">
       <header className="flex shrink-0 items-center justify-between bg-surface px-5 pt-5 pb-3">
         <h1 className="text-2xl font-medium tracking-tight">TableStakes</h1>
-        <button
-          onClick={() => setEditing(true)}
-          aria-label="Edit your name"
-          className="transition active:scale-95"
-        >
-          <Avatar name={displayName(me)} colorKey={me.id} size={36} />
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowHelp(true)}
+            aria-label="How it works"
+            className="text-on-surface-variant transition active:scale-95"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setEditing(true)}
+            aria-label="Edit your name"
+            className="transition active:scale-95"
+          >
+            <Avatar name={displayName(me)} colorKey={me.id} size={36} />
+          </button>
+        </div>
       </header>
 
       <main className="min-h-0 flex-1 overflow-y-auto px-5 pt-2 pb-6">
@@ -114,6 +129,12 @@ export default function App() {
             setCapturing(true);
           }}
         />
+      )}
+
+      {showHelp && (
+        <Suspense fallback={null}>
+          <HowItWorks onClose={() => setShowHelp(false)} />
+        </Suspense>
       )}
 
       {editing && (
