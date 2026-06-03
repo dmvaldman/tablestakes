@@ -21,43 +21,45 @@ function Tex({ tex, block }: { tex: string; block?: boolean }) {
 export default function HowItWorks({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-40 mx-auto flex max-w-md flex-col bg-surface">
-      <div className="flex-1 overflow-y-auto p-5">
+      <header className="flex items-center justify-between border-b border-outline-variant px-5 py-4">
+        <button onClick={onClose} className="text-on-surface-variant">
+          Close
+        </button>
+        <span className="font-medium">How it works</span>
+        <span className="w-10" />
+      </header>
 
+      <div className="flex-1 overflow-y-auto p-5">
         {/* How the payee is chosen */}
-        <section className="mt-8">
+        <section>
           <h3 className="flex items-center gap-2 text-xl font-semibold">
             <span className="text-primary">▸</span>
             How the payee is chosen
           </h3>
-          <div className="mt-2 space-y-3 text-lg text-on-surface-variant">
-            <p className="text-xl text-on-surface">
-              One person pays the whole bill but that person is chosen
-              according to their share. So after many meals, on average, everyone pays what they owe.
+          <div className="mt-2 space-y-2.5 text-lg text-on-surface-variant">
+            <p>
+              One person pays the whole bill, but that person is chosen
+              according to their share. So after many meals, on average,
+              everyone pays what they owe.
             </p>
             <p>
-              The trick: we do this{" "}
-              <span className="text-on-surface">
-                without asking what each person ordered
-              </span>
-              . How? The app walks the receipt one item at a time. For each
-              item it flips a weighted coin: with probability{" "}
-              <span className="text-on-surface">
-                (the item's cost ÷ the remaining bill)
-              </span>{" "}
-              the person who got that item pays the whole bill. If the coin says
-              no, that item is set aside and we move to the next one — until
-              someone is chosen (the last item always lands).
+              The trick: we do this without asking what each person ordered. How?
+              The app walks the receipt one item at a time. For each item it
+              flips a weighted coin: with probability (the item's cost ÷ the
+              remaining bill) the person who got that item pays the whole bill.
+              If the coin says no, that item is set aside and we move to the next
+              one — until someone is chosen (the last item always lands).
             </p>
           </div>
         </section>
 
         {/* Why it's fair */}
-        <section className="mt-8">
+        <section className="mt-6">
           <h3 className="flex items-center gap-2 text-xl font-semibold">
             <span className="text-primary">▸</span>
             Why this works
           </h3>
-          <div className="mt-2 space-y-3 text-lg text-on-surface-variant">
+          <div className="mt-2 space-y-2.5 text-lg text-on-surface-variant">
             <p>
               Imagine the bill as a single line from 0 to the total. Cut it into
               segments — one per item, each as long as that item costs. Throw a
@@ -66,9 +68,8 @@ export default function HowItWorks({ onClose }: { onClose: () => void }) {
             </p>
             <p>
               The item-by-item coin flipping is exactly that dart throw in
-              disguise. It scans the line segment by segment, asking{" "}
-              <span className="text-on-surface">"did the dart land here?"</span> — yes
-              with probability cost ÷ total.
+              disguise. It scans the line segment by segment, asking "did the
+              dart land here?" — yes with probability cost ÷ total.
             </p>
             <p>
               If no, we go to the next item and ask, "did it land here?" (now the probability is cost ÷ remaining total).
@@ -84,7 +85,7 @@ export default function HowItWorks({ onClose }: { onClose: () => void }) {
               <span className="hidden select-none text-on-surface-variant group-open:inline">
                 ▾{" "}
               </span>
-              Mathematical proof
+              Math proof
             </summary>
 
             <div className="mt-3 space-y-3 text-sm text-on-surface-variant">
