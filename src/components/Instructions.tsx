@@ -1,8 +1,8 @@
 // First-run instructions. Shown before the name form, only on a fresh visit to
 // the app's home (not when arriving via a share link).
 const STEPS = [
-  "Take a pic of the receipt",
-  "We figure out who should pay (for everyone)",
+  "Take a pic of the bill",
+  "We figure out who pays (for everyone)",
   "Keep eating with the same people and you'll (on average) pay your share.",
   "Stare in disbelief that this works!",
 ];
