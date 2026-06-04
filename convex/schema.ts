@@ -15,10 +15,11 @@ export default defineSchema({
   }).index("by_userId", ["userId"]),
 
   meals: defineTable({
+    code: v.string(), // short, human-readable id for the share link
     createdAt: v.number(), // ms epoch, set server-side
     total: v.number(), // post-tax, pre-tip
     payerId: v.union(v.string(), v.null()), // who paid; null until confirmed
-  }),
+  }).index("by_code", ["code"]),
 
   diners: defineTable({
     mealId: v.id("meals"),

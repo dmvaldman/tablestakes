@@ -14,9 +14,10 @@ import Friends from "./screens/Friends";
 import NewReceipt from "./screens/NewReceipt";
 import JoinMeal from "./screens/JoinMeal";
 
-// Tiny path router: /m/<id> is a shared meal, everything else is the app home.
-function sharedMealId(): string | null {
-  const m = window.location.pathname.match(/^\/m\/([^/]+)$/);
+// Tiny path router: /<code> is a shared meal, everything else is the app home.
+// Match only the 6-char code alphabet so non-code paths fall through to home.
+function shareCodeFromPath(): string | null {
+  const m = window.location.pathname.match(/^\/([a-hjkm-np-z2-9]{6})$/);
   return m ? m[1] : null;
 }
 
@@ -37,7 +38,7 @@ export default function App() {
   const [showHelp, setShowHelp] = useState(false);
   const [onboarded, setOnboarded] = useState(false); // dismissed first-run instructions
   const renameUser = useMutation(api.meals.renameUser);
-  const mealId = sharedMealId();
+  const shareCode = shareCodeFromPath();
 
   async function saveIdentity(first: string, last: string) {
     setEditing(false);
@@ -58,16 +59,16 @@ export default function App() {
   if (!me) {
     // First-run instructions on the home route only — never on a share link
     // (those visitors just need a name to join). Skipped once you have a name.
-    if (!mealId && !onboarded)
+    if (!shareCode && !onboarded)
       return <Instructions onContinue={() => setOnboarded(true)} />;
     return <NameGate onSet={setMe} />;
   }
 
-  if (mealId) {
+  if (shareCode) {
     return (
       <JoinMeal
         me={me}
-        mealId={mealId}
+        code={shareCode}
         onDone={() => {
           window.history.pushState({}, "", "/");
           force((n) => n + 1);

@@ -7,6 +7,28 @@ import {
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 
+// Short share codes. No 0/o/1/i/l to avoid misreads. 30^6 ≈ 730M combos.
+const CODE_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789";
+
+function randomCode(len = 6): string {
+  let code = "";
+  for (let i = 0; i < len; i++)
+    code += CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)];
+  return code;
+}
+
+async function uniqueCode(ctx: MutationCtx): Promise<string> {
+  for (let i = 0; i < 10; i++) {
+    const code = randomCode();
+    const clash = await ctx.db
+      .query("meals")
+      .withIndex("by_code", (q) => q.eq("code", code))
+      .unique();
+    if (!clash) return code;
+  }
+  throw new Error("could not allocate a unique meal code");
+}
+
 // Create or update a person's display name. Called whenever someone appears
 // (creates or joins a meal) and on rename — the name lives only here.
 async function upsertUser(ctx: MutationCtx, userId: string, name: string) {
@@ -50,6 +72,7 @@ export const createMeal = mutation({
   handler: async (ctx, { creatorId, creatorName, total }) => {
     await upsertUser(ctx, creatorId, creatorName);
     const mealId = await ctx.db.insert("meals", {
+      code: await uniqueCode(ctx),
       createdAt: Date.now(),
       total,
       payerId: null,
@@ -90,13 +113,26 @@ export const renameUser = mutation({
   },
 });
 
-// A single meal + its diners — for the share/join screen.
+// A single meal + its diners, by internal id — used by the owner's detail view.
 export const getMeal = query({
   args: { mealId: v.id("meals") },
   handler: async (ctx, { mealId }) => {
     const meal = await ctx.db.get(mealId);
     if (!meal) return null;
     return { ...meal, participants: await dinersWithNames(ctx, mealId) };
+  },
+});
+
+// A single meal + its diners, by share code — used by the share link (JoinMeal).
+export const getMealByCode = query({
+  args: { code: v.string() },
+  handler: async (ctx, { code }) => {
+    const meal = await ctx.db
+      .query("meals")
+      .withIndex("by_code", (q) => q.eq("code", code))
+      .unique();
+    if (!meal) return null;
+    return { ...meal, participants: await dinersWithNames(ctx, meal._id) };
   },
 });
 

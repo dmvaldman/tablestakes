@@ -1,24 +1,22 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import type { Id } from "../../convex/_generated/dataModel";
 import { displayName, firstNameOf, type Me } from "../lib/identity";
 import Avatar from "../components/Avatar";
 import HowItWorks from "../components/HowItWorks";
 
-// Opened from a shared link. We claim the opener's slot on the meal, then ask
-// the one essential question the app can't know on its own: did YOU pay?
+// Opened from a shared link (/m/<code>). We claim the opener's slot on the meal,
+// then ask the one essential question the app can't know: did YOU pay?
 export default function JoinMeal({
   me,
-  mealId,
+  code,
   onDone,
 }: {
   me: Me;
-  mealId: string;
+  code: string;
   onDone: () => void;
 }) {
-  const id = mealId as Id<"meals">;
-  const meal = useQuery(api.meals.getMeal, { mealId: id });
+  const meal = useQuery(api.meals.getMealByCode, { code });
   const claim = useMutation(api.meals.claimParticipant);
   const confirmPayer = useMutation(api.meals.confirmPayer);
   const [claimed, setClaimed] = useState(false);
@@ -26,11 +24,11 @@ export default function JoinMeal({
 
   useEffect(() => {
     if (meal && !claimed) {
-      claim({ mealId: id, userId: me.id, name: displayName(me) }).then(() =>
-        setClaimed(true),
+      claim({ mealId: meal._id, userId: me.id, name: displayName(me) }).then(
+        () => setClaimed(true),
       );
     }
-  }, [meal, claimed, claim, id, me]);
+  }, [meal, claimed, claim, me]);
 
   if (meal === undefined)
     return <Centered>Loading…</Centered>;
@@ -83,8 +81,8 @@ export default function JoinMeal({
             <p className="mb-3 font-medium">Were you the one who paid?</p>
             <div className="flex gap-3">
               <button
-                onClick={() => confirmPayer({ mealId: id, payerId: me.id })}
-                className="flex-1 rounded-full bg-primary py-3 font-semibold text-on-primary"
+                onClick={() => confirmPayer({ mealId: meal._id, payerId: me.id })}
+                className="flex-1 rounded-full bg-surface py-3 font-semibold ring-1 ring-outline-variant"
               >
                 Yes, I paid
               </button>

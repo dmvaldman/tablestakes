@@ -22,7 +22,7 @@ export default function ReceiptDetail({
   const [dismissed, setDismissed] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = `${window.location.origin}/m/${mealId}`;
+  const shareUrl = meal ? `${window.location.origin}/${meal.code}` : "";
 
   async function copyUrl() {
     try {
@@ -83,7 +83,7 @@ export default function ReceiptDetail({
           {/* share link */}
           <Section label="Share link">
             <p className="mb-2 text-sm text-on-surface-variant">
-              Share this link with your fellow diners.
+              Share this link with your fellow diners to track the meal.
             </p>
             <div className="flex items-center gap-2 rounded-xl bg-surface-container p-3">
               <span className="flex-1 truncate text-sm">{shareUrl}</span>
