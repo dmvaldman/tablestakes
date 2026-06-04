@@ -34,11 +34,11 @@ export default function HowItWorks({ onClose }: { onClose: () => void }) {
             </p>
             <p>
               As long as we have a method where the chance a diner pays
-              equals their share of the bill, we're good. Now, picture the bill
+              is equal to their share of the bill, we're good. Now, picture the bill
               as a line from 0 to the bill's total, with each item laid out as a segment
               with length equal to its cost. Throw a dart at the line: the
               chance it lands on a diner's item is exactly their share of the
-              bill. So we don't actually need to know who purchased every item,
+              bill. But notice, we don't actually need to know who purchased each item,
               we only need to know who purchased the item the dart landed on.
             </p>
             <p>
