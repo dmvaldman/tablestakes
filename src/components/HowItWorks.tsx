@@ -15,22 +15,20 @@ export default function HowItWorks({ onClose }: { onClose: () => void }) {
           <p>
             One person pays for the table, but they're chosen according to what they owe.
             So even though one person pays in reality, everyone pays "in expectation".
-          </p>
-          <p>
             If you keep eating with the same people, it will all work out in the end.
           </p>
         </div>
 
         {/* the mechanism */}
         <section className="mt-9">
-          <h3 className="flex items-center gap-2 text-xl font-semibold">
+          <h3 className="flex items-center gap-2 text-2xl font-semibold">
             How the payee is chosen
           </h3>
           <div className="mt-3 space-y-3 text-lg text-on-surface-variant">
             <p>
-              We could tally up what everyone ordered, but that means asking you
-              a lot of questions. It turns out we only need to know who bought a
-              single item!
+              One way we could do it would be tally up what everyone ordered, then choose who pays based on their share of the bill.
+              That would be just as fair, but it also requires a lot of data entry.
+              It turns out we only need to know who bought a single item!
             </p>
             <p>
               As long as we have a method where the chance a diner pays

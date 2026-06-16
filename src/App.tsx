@@ -10,7 +10,7 @@ import HowItWorks from "./components/HowItWorks";
 import BottomNav, { type Tab } from "./components/BottomNav";
 import CameraCapture from "./components/CameraCapture";
 import Receipts from "./screens/Receipts";
-import Friends from "./screens/Friends";
+import Stats from "./screens/Stats";
 import NewReceipt from "./screens/NewReceipt";
 import JoinMeal from "./screens/JoinMeal";
 
@@ -101,8 +101,8 @@ export default function App() {
         </div>
       </header>
 
-      <main className="min-h-0 flex-1 overflow-y-auto px-5 pt-2 pb-6">
-        {tab === "receipts" ? <Receipts me={me} /> : <Friends me={me} />}
+      <main className="min-h-0 flex-1 overflow-y-auto px-5 pt-2 pb-28">
+        {tab === "receipts" ? <Receipts me={me} /> : <Stats me={me} />}
       </main>
 
       {/* M3 FAB — rounded-square tonal container; opens the in-app camera */}

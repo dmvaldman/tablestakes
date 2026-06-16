@@ -1,4 +1,4 @@
-export type Tab = "receipts" | "friends";
+export type Tab = "receipts" | "stats";
 
 export default function BottomNav({
   tab,
@@ -9,7 +9,7 @@ export default function BottomNav({
 }) {
   const items: { key: Tab; label: string }[] = [
     { key: "receipts", label: "Receipts" },
-    { key: "friends", label: "Friends" },
+    { key: "stats", label: "Stats" },
   ];
   return (
     <nav className="flex shrink-0 divide-x divide-outline-variant border-t border-outline-variant bg-surface pb-[env(safe-area-inset-bottom)]">

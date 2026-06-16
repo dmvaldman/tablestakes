@@ -48,15 +48,15 @@ export default function ReceiptDetail({
           {/* who paid (confirmable if nobody has yet) */}
           <Section label="Paid by">
             {payerId ? (
-              <div className="flex items-center gap-2">
-                <Avatar
-                  name={payerName ?? "?"}
-                  colorKey={payerId}
-                  size={28}
-                />
-                <span className="font-medium text-primary">
-                  {payerId === me.id ? "You" : firstNameOf(payerName ?? "Someone")}
-                </span>
+              <div className="flex flex-wrap gap-2">
+                <div className="flex items-center gap-1.5 rounded-full bg-surface-container py-1 pl-1 pr-3">
+                  <Avatar name={payerName ?? "?"} colorKey={payerId} size={24} />
+                  <span className="text-sm">
+                    {payerId === me.id
+                      ? "You"
+                      : firstNameOf(payerName ?? "Someone")}
+                  </span>
+                </div>
               </div>
             ) : (
               <div className="flex gap-3">
