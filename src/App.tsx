@@ -21,6 +21,16 @@ function shareCodeFromPath(): string | null {
   return m ? m[1] : null;
 }
 
+// The core flow needs the phone camera, so on a non-touch / wide screen we steer
+// people to their phone (the share-link page is exempt — it just confirms paid).
+function isDesktop(): boolean {
+  const ua = navigator.userAgent;
+  const mobileUA = /Android|iPhone|iPad|iPod|Mobile|Silk/i.test(ua);
+  const coarse = window.matchMedia?.("(pointer: coarse)").matches;
+  const narrow = window.matchMedia?.("(max-width: 640px)").matches;
+  return !(mobileUA || coarse || narrow);
+}
+
 export default function App() {
   const [me, setMe] = useState<Me | null>(() => {
     // Testing helper: visiting "?reset" clears your identity → back to the name screen.
@@ -39,6 +49,8 @@ export default function App() {
   const [onboarded, setOnboarded] = useState(false); // dismissed first-run instructions
   const renameUser = useMutation(api.meals.renameUser);
   const shareCode = shareCodeFromPath();
+  const [desktop] = useState(isDesktop);
+  const [desktopDismissed, setDesktopDismissed] = useState(false);
 
   async function saveIdentity(first: string, last: string) {
     setEditing(false);
@@ -55,6 +67,10 @@ export default function App() {
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
+
+  // Desktop steer — but never on a share link (joining/confirming works fine).
+  if (!shareCode && desktop && !desktopDismissed)
+    return <DesktopNotice onClose={() => setDesktopDismissed(true)} />;
 
   if (!me) {
     // First-run instructions on the home route only — never on a share link
@@ -165,6 +181,38 @@ export default function App() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function DesktopNotice({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="flex h-[100svh] flex-col items-center justify-center bg-surface px-8 text-center text-on-surface">
+      <h1 className="text-3xl font-bold tracking-tight">TableStakes</h1>
+      <svg
+        width="56"
+        height="56"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="mt-8 text-primary"
+      >
+        <rect x="7" y="2" width="10" height="20" rx="2" />
+        <path d="M11 18h2" />
+      </svg>
+      <p className="mt-6 max-w-sm text-lg text-on-surface-variant">
+        TableStakes is optimized for mobile (you need to take a picture of your
+        receipt) — try opening it on your phone!
+      </p>
+      <button
+        onClick={onClose}
+        className="mt-8 rounded-full px-5 py-2.5 font-medium text-on-surface-variant ring-1 ring-outline-variant transition active:scale-95"
+      >
+        Continue anyway
+      </button>
     </div>
   );
 }
