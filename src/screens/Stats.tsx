@@ -56,13 +56,11 @@ export default function Stats({ me }: { me: Me }) {
         <section>
           <SectionHeader>Your luck</SectionHeader>
           <div className="mt-2 rounded-2xl bg-surface-container p-4">
-            <p
-              className={`text-lg font-semibold ${
-                up ? "text-primary" : "text-on-surface"
-              }`}
-            >
+            <p className="text-lg font-semibold">
               {up ? "Up " : "Down "}
-              {luckPct}%
+              <span className={up ? "text-green-400" : "text-red-400"}>
+                {luckPct}%
+              </span>
             </p>
             <p className="mt-1 text-on-surface-variant">
               {up

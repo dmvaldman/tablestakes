@@ -85,7 +85,7 @@ function PayerStack({
       {Array.from({ length: extras }).map((_, i) => (
         <div
           key={i}
-          className="absolute top-0 rounded-full bg-black ring-2 ring-surface-container"
+          className="absolute top-0 rounded-full bg-surface ring-2 ring-surface-container"
           style={{
             width: size,
             height: size,
