@@ -65,7 +65,10 @@ export default function CameraCapture({
     canvas.width = Math.round(v.videoWidth * scale);
     canvas.height = Math.round(v.videoHeight * scale);
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+      reportError("capture frame", new Error("2D canvas context unavailable"));
+      return;
+    }
     ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
     stopStream();
     onCapture(canvas.toDataURL("image/jpeg", QUALITY));

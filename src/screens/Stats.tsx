@@ -137,7 +137,7 @@ function FriendRow({
       {expanded && (
         <dl className="space-y-1.5 border-t border-outline-variant px-3 py-3 text-sm">
           <Row label="Their luck">
-            <span className={luckUp ? "text-primary" : "text-on-surface"}>
+            <span className={luckUp ? "text-green-400" : "text-red-400"}>
               {luckUp ? "+" : "−"}
               {Math.abs(luckPct)}%
             </span>

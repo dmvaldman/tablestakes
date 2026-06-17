@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { displayName, firstNameOf, type Me } from "../lib/identity";
 import Avatar from "../components/Avatar";
+import Spinner from "../components/Spinner";
 import HowItWorks from "../components/HowItWorks";
 
 // Opened from a shared link (/m/<code>). We claim the opener's slot on the meal,
@@ -30,8 +31,7 @@ export default function JoinMeal({
     }
   }, [meal, claimed, claim, me]);
 
-  if (meal === undefined)
-    return <Centered>Loading…</Centered>;
+  if (meal === undefined) return <Spinner />;
   if (meal === null)
     return <Centered>This receipt link is no longer available.</Centered>;
 
