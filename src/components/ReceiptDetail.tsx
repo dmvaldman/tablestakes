@@ -56,39 +56,37 @@ export default function ReceiptDetail({
           <h3 className="mb-2 text-lg font-semibold uppercase tracking-wide text-on-surface-variant">
             Paid by
           </h3>
-          <div className="rounded-2xl bg-primary-container p-5 text-on-primary-container">
-            {payerId ? (
-              <div className="flex flex-wrap gap-2">
-                <div className="flex items-center gap-2 rounded-full bg-on-primary-container/10 py-1.5 pl-1.5 pr-4">
-                  <Avatar name={payerName ?? "?"} colorKey={payerId} size={28} />
-                  <span className="text-base">
-                    {payerId === me.id
-                      ? "You"
-                      : firstNameOf(payerName ?? "Someone")}
-                  </span>
-                </div>
+          {payerId ? (
+            <div className="flex flex-wrap gap-2">
+              <div className="flex items-center gap-2 rounded-full bg-surface-container py-1.5 pl-1.5 pr-4">
+                <Avatar name={payerName ?? "?"} colorKey={payerId} size={28} />
+                <span className="text-base">
+                  {payerId === me.id
+                    ? "You"
+                    : firstNameOf(payerName ?? "Someone")}
+                </span>
               </div>
-            ) : (
-              <div className="flex gap-3">
-                <button
-                  onClick={() => confirmPayer({ mealId, payerId: me.id })}
-                  className="flex-1 rounded-full py-3 text-lg font-medium ring-1 ring-on-primary-container/40 transition active:scale-95"
-                >
-                  I paid
-                </button>
-                <button
-                  onClick={() => setDismissed(true)}
-                  className={`flex-1 rounded-full py-3 text-lg font-medium transition active:scale-95 ${
-                    dismissed
-                      ? "bg-on-primary-container/15"
-                      : "ring-1 ring-on-primary-container/40"
-                  }`}
-                >
-                  Not me
-                </button>
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="flex gap-3 rounded-2xl bg-primary-container p-5 text-on-primary-container">
+              <button
+                onClick={() => confirmPayer({ mealId, payerId: me.id })}
+                className="flex-1 rounded-full py-3 text-lg font-medium ring-1 ring-on-primary-container/40 transition active:scale-95"
+              >
+                I paid
+              </button>
+              <button
+                onClick={() => setDismissed(true)}
+                className={`flex-1 rounded-full py-3 text-lg font-medium transition active:scale-95 ${
+                  dismissed
+                    ? "bg-on-primary-container/15"
+                    : "ring-1 ring-on-primary-container/40"
+                }`}
+              >
+                Not me
+              </button>
+            </div>
+          )}
 
           {/* share link */}
           <Section label="Share link">
