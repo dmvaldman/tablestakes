@@ -46,6 +46,14 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
     ),
   },
   {
+    q: "What if the dish the app picked was shared?",
+    a: (
+      <p>
+        Choose the payee randomly (coin flip, etc) between the people sharing the dish, the math will work out.
+      </p>
+    ),
+  },
+  {
     q: "What if I don't eat with the same person ever again?",
     a: (
       <p>
@@ -128,9 +136,9 @@ export default function HowItWorks({ onClose }: { onClose: () => void }) {
         </h2>
         <div className="mt-4 space-y-3 text-md text-on-surface-variant">
           <p>
-            One person pays for the table, but they're chosen in a special way based on the bill.
-            So though one person pays in reality, everyone pays their share "in expectation".
-            If you keep splitting the bill this way, it'll work out in the end.
+            One person pays for the table, but they're chosen based on the bill.
+            So though one person pays in reality, everyone pays "in expectation".
+            Over time, you each pay your fair share.
           </p>
         </div>
 
