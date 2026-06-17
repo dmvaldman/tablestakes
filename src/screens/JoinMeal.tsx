@@ -79,18 +79,20 @@ export default function JoinMeal({
             <span className="font-semibold">{payerName}</span> paid this one.
           </p>
         ) : (
-          <div className="w-full">
-            <p className="mb-3 text-lg font-medium">Were you the one who paid?</p>
+          <div className="rounded-2xl bg-primary-container p-5 text-left text-on-primary-container">
+            <p className="mb-3 text-lg font-semibold">
+              Were you the one who paid?
+            </p>
             <div className="flex gap-3">
               <button
                 onClick={() => confirmPayer({ mealId: meal._id, payerId: me.id })}
-                className="flex-1 rounded-full bg-surface py-3 font-semibold ring-1 ring-outline-variant"
+                className="flex-1 rounded-full py-3 font-semibold ring-1 ring-on-primary-container/40 transition active:scale-95"
               >
                 Yes, I paid
               </button>
               <button
                 onClick={onDone}
-                className="flex-1 rounded-full bg-surface py-3 font-semibold ring-1 ring-outline-variant"
+                className="flex-1 rounded-full py-3 font-semibold ring-1 ring-on-primary-container/40 transition active:scale-95"
               >
                 No
               </button>
@@ -99,20 +101,20 @@ export default function JoinMeal({
         )}
       </div>
 
-      <div className="flex flex-col items-center gap-3">
+      <div className="flex items-center justify-center gap-3">
         <button
           onClick={() => setShowHelp(true)}
-          className="rounded-full px-6 py-3 font-medium text-primary ring-1 ring-outline-variant transition active:scale-95"
+          className="rounded-full px-4 py-2 text-sm font-medium text-on-surface-variant ring-1 ring-outline-variant transition active:scale-95"
         >
           What is this?
         </button>
         <button
           onClick={onDone}
-          className="inline-flex items-center gap-2 rounded-full px-6 py-3 font-medium text-on-surface-variant ring-1 ring-outline-variant transition active:scale-95"
+          className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-on-surface-variant ring-1 ring-outline-variant transition active:scale-95"
         >
           <svg
-            width="20"
-            height="20"
+            width="16"
+            height="16"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
