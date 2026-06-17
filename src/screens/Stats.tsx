@@ -33,7 +33,7 @@ export default function Stats({ me }: { me: Me }) {
     <div className="space-y-5 pt-1">
       {/* Luck over time */}
       <section>
-        <SectionHeader>Luck over time</SectionHeader>
+        <SectionHeader>Luck Over Time</SectionHeader>
         <div className="mt-2 rounded-2xl bg-surface-container p-4">
           {luck.informative >= 2 ? (
             <Funnel series={luck.series} />
@@ -49,7 +49,7 @@ export default function Stats({ me }: { me: Me }) {
       {/* Your luck — only once there's a meal that can carry luck (σ > 0) */}
       {luck.sigma > 0 && (
         <section>
-          <SectionHeader>Current luck</SectionHeader>
+          <SectionHeader>Current Luck</SectionHeader>
           <div className="mt-2 rounded-2xl bg-surface-container p-4">
             <p className="text-lg font-semibold">
               {up ? "Up " : "Down "}
@@ -220,7 +220,14 @@ function timeTicks(t0: number, t1: number): { t: number; label: string }[] {
   return out;
 }
 
-function Funnel({ series }: { series: LuckPoint[] }) {
+function Funnel({ series: allPoints }: { series: LuckPoint[] }) {
+  // Show the last 10 points or the last 3 months, whichever spans more — then
+  // the axes (below) auto-scale to just this window. Cumulative dev/band values
+  // already encode the full history, so slicing only affects what's drawn.
+  const cutoff = Date.now() - 90 * DAY;
+  const minStart = Math.max(0, allPoints.length - 10);
+  const series = allPoints.filter((p, i) => i >= minStart || p.t >= cutoff);
+
   const W = 340;
   const H = 196;
   const ML = 46; // left margin for y labels + ticks
