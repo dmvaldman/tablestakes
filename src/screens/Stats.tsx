@@ -34,14 +34,9 @@ export default function Stats({ me }: { me: Me }) {
       {/* Luck over time */}
       <section>
         <SectionHeader>Luck over time</SectionHeader>
-        <p className="mt-2 text-sm text-on-surface-variant center">
-          (How much you're up/down from splitting every bill evenly)
-        </p>
         <div className="mt-2 rounded-2xl bg-surface-container p-4">
           {luck.informative >= 2 ? (
-            <>
-              <Funnel series={luck.series} />
-            </>
+            <Funnel series={luck.series} />
           ) : (
             <p className="text-on-surface-variant">
               Play a couple of meals with friends and your fairness curve will
@@ -54,7 +49,7 @@ export default function Stats({ me }: { me: Me }) {
       {/* Your luck — only once there's a meal that can carry luck (σ > 0) */}
       {luck.sigma > 0 && (
         <section>
-          <SectionHeader>Your luck</SectionHeader>
+          <SectionHeader>Current luck</SectionHeader>
           <div className="mt-2 rounded-2xl bg-surface-container p-4">
             <p className="text-lg font-semibold">
               {up ? "Up " : "Down "}
