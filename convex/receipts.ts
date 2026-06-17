@@ -1,5 +1,3 @@
-"use node";
-
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { fetchReceiptOcr, type ReceiptOcr } from "./ocr";
@@ -16,12 +14,9 @@ const env: Record<string, string | undefined> =
   (globalThis as { process?: { env: Record<string, string | undefined> } })
     .process?.env ?? {};
 
-// Model names are env vars because Google's lineup changes often. The primary
-// is tried first; if it's overloaded (503/429), OCR falls through to the
-// fallback. Override with `npx convex env set GEMINI_MODEL / GEMINI_FALLBACK_MODEL`.
-const MODEL = env.GEMINI_MODEL ?? "gemini-2.5-flash";
-const FALLBACK_MODEL = env.GEMINI_FALLBACK_MODEL ?? "gemini-3.1-pro-preview";
-const MODELS = [...new Set([MODEL, FALLBACK_MODEL])];
+// Model name is an env var because Google's lineup changes often.
+// Override with `npx convex env set GEMINI_MODEL <name>`.
+const MODEL = env.GEMINI_MODEL ?? "gemini-3.1-flash-lite";
 
 export const itemizeReceipt = action({
   args: {
@@ -35,6 +30,6 @@ export const itemizeReceipt = action({
         "GEMINI_API_KEY not set — run `npx convex env set GEMINI_API_KEY <key>`",
       );
     }
-    return fetchReceiptOcr({ imageBase64, mimeType, apiKey, models: MODELS });
+    return fetchReceiptOcr({ imageBase64, mimeType, apiKey, model: MODEL });
   },
 });

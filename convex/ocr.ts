@@ -42,9 +42,6 @@ service rows. For each item give its name, its printed line price, and its
 quantity. Separately return "total": the grand total AFTER tax but BEFORE any
 tip. Use plain numbers (no currency symbols).`;
 
-// Statuses where the model is just busy/transient — worth trying another model.
-const RETRYABLE_STATUS = new Set([429, 500, 503]);
-
 class GeminiError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -77,6 +74,9 @@ async function callGemini(
           responseMimeType: "application/json",
           responseSchema: RESPONSE_SCHEMA,
           temperature: 0,
+          // Plain structured extraction — no reasoning needed. Disabling
+          // "thinking" cuts several seconds of latency off each call.
+          thinkingConfig: { thinkingBudget: 0 },
         },
       }),
     },
@@ -98,28 +98,13 @@ async function callGemini(
   return parsed;
 }
 
-// Try each model in order; if one is overloaded (503/429/500), fall through to
-// the next. Non-retryable errors (e.g. 400/404) throw immediately.
+// Run a single Gemini model against the receipt photo.
 export async function fetchReceiptOcr(opts: {
   imageBase64: string;
   mimeType?: string;
   apiKey: string;
-  models: string[];
+  model: string;
 }): Promise<ReceiptOcr> {
-  const { imageBase64, mimeType = "image/jpeg", apiKey, models } = opts;
-  if (models.length === 0) throw new Error("no models configured");
-
-  let lastErr: unknown;
-  for (let i = 0; i < models.length; i++) {
-    try {
-      return await callGemini(models[i], imageBase64, mimeType, apiKey);
-    } catch (e) {
-      lastErr = e;
-      const status = e instanceof GeminiError ? e.status : 0;
-      const isLast = i === models.length - 1;
-      if (isLast || !RETRYABLE_STATUS.has(status)) throw e;
-      // else: model busy — try the next one
-    }
-  }
-  throw lastErr;
+  const { imageBase64, mimeType = "image/jpeg", apiKey, model } = opts;
+  return callGemini(model, imageBase64, mimeType, apiKey);
 }
