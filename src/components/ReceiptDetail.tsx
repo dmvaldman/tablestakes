@@ -49,9 +49,9 @@ export default function ReceiptDetail({
           <Section label="Paid by">
             {payerId ? (
               <div className="flex flex-wrap gap-2">
-                <div className="flex items-center gap-1.5 rounded-full bg-surface-container py-1 pl-1 pr-3">
-                  <Avatar name={payerName ?? "?"} colorKey={payerId} size={24} />
-                  <span className="text-sm">
+                <div className="flex items-center gap-2 rounded-full bg-surface-container py-1.5 pl-1.5 pr-4">
+                  <Avatar name={payerName ?? "?"} colorKey={payerId} size={28} />
+                  <span className="text-base">
                     {payerId === me.id
                       ? "You"
                       : firstNameOf(payerName ?? "Someone")}
@@ -62,13 +62,13 @@ export default function ReceiptDetail({
               <div className="flex gap-3">
                 <button
                   onClick={() => confirmPayer({ mealId, payerId: me.id })}
-                  className="flex-1 rounded-full bg-surface ring-1 ring-outline-variant py-2 font-medium"
+                  className="flex-1 rounded-full bg-surface ring-1 ring-outline-variant py-3 text-lg font-medium"
                 >
                   I paid
                 </button>
                 <button
                   onClick={() => setDismissed(true)}
-                  className={`flex-1 rounded-full py-2 font-medium ${
+                  className={`flex-1 rounded-full py-3 text-lg font-medium ${
                     dismissed
                       ? "bg-surface-container-high ring-1 ring-primary"
                       : "bg-surface ring-1 ring-outline-variant"
@@ -82,15 +82,15 @@ export default function ReceiptDetail({
 
           {/* share link */}
           <Section label="Share link">
-            <p className="mb-2 text-sm text-on-surface-variant">
-              Share this link with your fellow diners to track the meal.
+            <p className="mb-2 text-base text-on-surface-variant">
+              Share this with your fellow diners to track the meal
             </p>
             <div className="flex items-center gap-2 rounded-xl bg-surface-container p-3">
               <span className="flex-1 truncate text-sm">{shareUrl}</span>
               <button
                 onClick={copyUrl}
                 aria-label="Copy link"
-                className="shrink-0 rounded-lg bg-surface-container-high px-3 py-2 text-sm font-medium"
+                className="shrink-0 rounded-lg bg-surface-container-high px-4 py-2 text-sm font-medium"
               >
                 {copied ? "Copied" : "Copy"}
               </button>
@@ -104,10 +104,10 @@ export default function ReceiptDetail({
                 {meal.participants.map((p) => (
                   <div
                     key={p.userId}
-                    className="flex items-center gap-1.5 rounded-full bg-surface-container py-1 pl-1 pr-3"
+                    className="flex items-center gap-2 rounded-full bg-surface-container py-1.5 pl-1.5 pr-4"
                   >
-                    <Avatar name={p.name} colorKey={p.userId} size={24} />
-                    <span className="text-sm">
+                    <Avatar name={p.name} colorKey={p.userId} size={28} />
+                    <span className="text-base">
                       {p.userId === me.id ? "You" : firstNameOf(p.name)}
                     </span>
                   </div>
@@ -129,8 +129,8 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mt-6">
-      <h3 className="mb-2 text-base font-semibold uppercase tracking-wide text-on-surface-variant">
+    <div className="mt-7">
+      <h3 className="mb-2 text-lg font-semibold uppercase tracking-wide text-on-surface-variant">
         {label}
       </h3>
       {children}
