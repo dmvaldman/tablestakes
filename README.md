@@ -1,47 +1,34 @@
-# Tablestakes
+# TableStakes
 
 A zero-friction mobile web app for friends who eat together. After dinner, one
 person pays the whole bill — but _who_ is chosen by chance, weighted so that
-over time everyone converges to paying their fair share in expectation. The
-payer is chosen by a chance-based method that's fair in expectation (based on
+over time everyone converges to paying their fair share in expectation (based on
 [this Messy Matters post](https://messymatters.com/expectorant/)).
 
 ## How it works
 
-You tap **+**, which opens the camera. The photo is OCR'd (Gemini) into line
-items + total, and the algorithm runs invisibly while a scan animation plays
-over the photo. The app walks the items and,
-for each, the person who ordered it pays the _whole bill_ with probability
-`item cost / remaining subtotal`. The first "hit" wins. This makes
-`P(person pays) = their share / total`, so expected payment = fair share — the
-math is verified in `tests/fairness.ts`.
-
-The app never needs to know who ordered what. It announces the chosen _item_
+After a meal, take a photo of the receipt, the app announces the chosen _item_
 ("whoever got the Ribeye pays!"), you resolve it at the table, and the actual
-payer is recorded when someone opens the shared link and confirms "I paid."
+payer is recorded when someone opens the shared link and confirms "I paid." When
+the drawn item has duplicate units (e.g. 4 lagers), a split screen breaks the
+tie with a uniform sub-draw.
 
-## Architecture
+### Stats
 
-- **No accounts.** Identity is a `uuid` minted on first run and kept in
-  `localStorage` (`src/lib/identity.ts`). The uuid is the stable key; your name
-  is just a label, so two "Alex"es never collide. New phone = new identity (and
-  lost history) — an accepted tradeoff.
-- **Slim backend (Convex).** We persist only the meal _summary_ — never items,
-  never receipt images.
-  - `meals` — `{ creatorId, createdAt, total, payerId }`. The doc `_id` is the
-    share token (`/m/<id>`). `total` is post-tax, pre-tip.
-  - `participations` — `{ mealId, userId, name }`, indexed `by_user` so
-    "meals I'm in" is a cheap query and concurrent claims don't contend.
-  - `meals.ts` — `createMeal`, `claimParticipant`, `confirmPayer`, `getMeal`,
-    `mealsForUser`. The last one powers both the Receipts timeline and all
-    Friends-tab stats, which are computed client-side (`src/lib/stats.ts`).
-  - `receipts.ts` — `itemizeReceipt` action: sends the captured photo to Google
-    Gemini (`generateContent`, structured-JSON output with bounding boxes) and
-    returns line items + total. The API key lives server-side only; manual
-    entry is the fallback if OCR fails. Set the keys by copying
-    `.env.convex.example` → `.env.convex` (gitignored), filling it in, and
-    running `npm run convex:env` (bulk-uploads to the deployment via
-    `convex env set < .env.convex`).
+The **Stats** tab turns the meal history into a fairness picture, all computed
+client-side from stored meals (`src/lib/stats.ts`):
+
+- **Luck Over Time** — a funnel chart of your cumulative luck (fair share minus
+  what you've paid, as a % of your share) inside the ±2σ "normal luck" envelope,
+  which narrows as you play. Shows the last 10 meals or 3 months, whichever is
+  longer.
+- **Current Luck** — your standing right now (e.g. "Up 5% · Luckier than 61% of
+  outcomes").
+- **Fellow Diners** — per-person tallies over your shared meals; tap to expand
+  each person's luck and who-paid-what.
+
+"Fair share" assumes an even split per meal — the only baseline derivable
+without storing who ordered what — so it's labelled as luck, not debt.
 
 ## Setup
 
@@ -52,23 +39,19 @@ npx convex dev      # logs in, creates a dev deployment, generates convex/_gener
 
 cp .env.convex.example .env.convex   # then fill in your GEMINI_API_KEY
 npm run convex:env                   # uploads secrets to the deployment
+                                     # (convex env set < .env.convex)
 
 npm run dev         # in a second terminal
 ```
 
-> Until `npx convex dev` has run once, `convex/_generated` doesn't exist and the
-> `api` imports won't typecheck — that's expected.
+`.env.convex` keys: `GEMINI_API_KEY` (required). Optional: `GEMINI_MODEL`.
 
-To test the share flow locally, open a meal's `/m/<id>` URL in a second browser
+To test the share flow locally, open a meal's `/<code>` URL in a second browser
 profile (a different `localStorage` identity).
 
-## Verify the algorithm
+## Tests
 
 ```bash
-node --experimental-strip-types tests/fairness.ts
+npm test            # fairness Monte-Carlo + offline receipt parse
+npm run test:ocr    # end-to-end OCR against a real receipt photo (needs GEMINI_API_KEY)
 ```
-
-## Not yet built (v1 scope notes)
-
-- PWA manifest + service worker for home-screen install / offline shell.
-- Production SPA routing fallback for `/m/<id>` deep links.
