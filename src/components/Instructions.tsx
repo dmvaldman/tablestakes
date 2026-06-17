@@ -3,8 +3,8 @@
 const STEPS = [
   "Take a pic of the bill",
   "We figure out who pays (for everyone)",
-  "Keep eating with the same people and you'll (on average) pay your share.",
-  "Stare in disbelief at the power of statistics.",
+  "Keep playing and you'll (on average) pay your share",
+  "Stare in disbelief at the power of statistics!",
 ];
 
 export default function Instructions({

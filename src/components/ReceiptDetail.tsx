@@ -19,8 +19,15 @@ export default function ReceiptDetail({
 }) {
   const meal = useQuery(api.meals.getMeal, { mealId });
   const confirmPayer = useMutation(api.meals.confirmPayer);
+  const deleteMeal = useMutation(api.meals.deleteMeal);
   const [dismissed, setDismissed] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  async function onDelete() {
+    if (!confirm("Delete this receipt? This can't be undone.")) return;
+    onClose();
+    await deleteMeal({ mealId });
+  }
 
   const shareUrl = meal ? `${window.location.origin}/${meal.code}` : "";
 
@@ -46,10 +53,13 @@ export default function ReceiptDetail({
       {meal && (
         <div className="flex-1 overflow-y-auto p-5">
           {/* who paid (confirmable if nobody has yet) */}
-          <Section label="Paid by">
+          <h3 className="mb-2 text-lg font-semibold uppercase tracking-wide text-on-surface-variant">
+            Paid by
+          </h3>
+          <div className="rounded-2xl bg-primary-container p-5 text-on-primary-container">
             {payerId ? (
               <div className="flex flex-wrap gap-2">
-                <div className="flex items-center gap-2 rounded-full bg-surface-container py-1.5 pl-1.5 pr-4">
+                <div className="flex items-center gap-2 rounded-full bg-on-primary-container/10 py-1.5 pl-1.5 pr-4">
                   <Avatar name={payerName ?? "?"} colorKey={payerId} size={28} />
                   <span className="text-base">
                     {payerId === me.id
@@ -62,23 +72,23 @@ export default function ReceiptDetail({
               <div className="flex gap-3">
                 <button
                   onClick={() => confirmPayer({ mealId, payerId: me.id })}
-                  className="flex-1 rounded-full bg-surface ring-1 ring-outline-variant py-3 text-lg font-medium"
+                  className="flex-1 rounded-full py-3 text-lg font-medium ring-1 ring-on-primary-container/40 transition active:scale-95"
                 >
                   I paid
                 </button>
                 <button
                   onClick={() => setDismissed(true)}
-                  className={`flex-1 rounded-full py-3 text-lg font-medium ${
+                  className={`flex-1 rounded-full py-3 text-lg font-medium transition active:scale-95 ${
                     dismissed
-                      ? "bg-surface-container-high ring-1 ring-primary"
-                      : "bg-surface ring-1 ring-outline-variant"
+                      ? "bg-on-primary-container/15"
+                      : "ring-1 ring-on-primary-container/40"
                   }`}
                 >
                   Not me
                 </button>
               </div>
             )}
-          </Section>
+          </div>
 
           {/* share link */}
           <Section label="Share link">
@@ -115,6 +125,15 @@ export default function ReceiptDetail({
               </div>
             </Section>
           )}
+
+          <div className="mt-10 flex justify-left">
+            <button
+              onClick={onDelete}
+              className="rounded-full text-md font-medium text-red-400/70 transition active:scale-95"
+            >
+              Delete receipt
+            </button>
+          </div>
         </div>
       )}
     </div>

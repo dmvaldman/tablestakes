@@ -105,6 +105,19 @@ export const confirmPayer = mutation({
   },
 });
 
+// Delete a meal and all of its diner rows.
+export const deleteMeal = mutation({
+  args: { mealId: v.id("meals") },
+  handler: async (ctx, { mealId }) => {
+    const diners = await ctx.db
+      .query("diners")
+      .withIndex("by_meal", (q) => q.eq("mealId", mealId))
+      .collect();
+    for (const d of diners) await ctx.db.delete(d._id);
+    await ctx.db.delete(mealId);
+  },
+});
+
 // Rename: one row in `users`; every meal picks it up through the join.
 export const renameUser = mutation({
   args: { userId: v.string(), name: v.string() },
