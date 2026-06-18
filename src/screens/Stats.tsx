@@ -28,6 +28,13 @@ export default function Stats({ me }: { me: Me }) {
     ? luck.series[luck.series.length - 1].dev
     : 0;
   const luckPct = Math.round(Math.abs(lastDev) * 100);
+  // When you're down and outside the ±1σ band, estimate how many more meals
+  // until the (growing) normal range catches up to your standing: with z = luck/σ
+  // and meals like your past, m* = informative · (z² − 1). It's "until normal,"
+  // not "until even" — the deficit doesn't recover, the band widens to meet it.
+  const z = luck.sigma > 0 ? luck.luck / luck.sigma : 0;
+  const mealsToNormal =
+    z < -1 ? Math.ceil(luck.informative * (z * z - 1)) : 0;
 
   return (
     <div className="space-y-5 pt-1">
@@ -62,6 +69,12 @@ export default function Stats({ me }: { me: Me }) {
                 ? `Luckier than ${Math.round(luck.percentile * 100)}% of outcomes`
                 : `Unluckier than ${Math.round((1 - luck.percentile) * 100)}% of outcomes`}
             </p>
+            {mealsToNormal > 0 && (
+              <p className="mt-1 text-sm text-on-surface-variant">
+                About {mealsToNormal} more meal
+                {mealsToNormal === 1 ? "" : "s"} to reach the normal range.
+              </p>
+            )}
           </div>
         </section>
       )}
