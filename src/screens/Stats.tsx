@@ -259,14 +259,15 @@ function Funnel({ series: allPoints }: { series: LuckPoint[] }) {
   const xOf = (t: number) =>
     t1 > t0 ? px0 + (px1 - px0) * ((t - t0) / (t1 - t0)) : (px0 + px1) / 2;
 
-  // y range: cover the data and the band (2σ), symmetric, with buffer.
+  // y range: cover the data and the band (2σ), symmetric, hugging the data —
+  // tightest nice step that fits maxMag in ≤3 ticks per side, no extra headroom.
   const maxMag = Math.max(
     0.1,
     ...series.map((s) => Math.abs(s.dev)),
     ...series.map((s) => s.band),
   );
-  const yStep = niceStep((maxMag * 1.25) / 2); // 2 steps per side → 5 y ticks
-  const yLim = yStep * 2;
+  const yStep = niceStep(maxMag / 3);
+  const yLim = Math.max(yStep, Math.ceil(maxMag / yStep - 1e-9) * yStep);
   const yOf = (v: number) => pmid - (v / yLim) * (pmid - py0);
 
   const yTicks: number[] = [];
