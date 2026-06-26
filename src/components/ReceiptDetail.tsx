@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { firstNameOf, type Me } from "../lib/identity";
+import { money } from "../lib/format";
 import Avatar from "./Avatar";
 import ModalHeader from "./ModalHeader";
 
@@ -52,8 +53,13 @@ export default function ReceiptDetail({
 
       {meal && (
         <div className="flex-1 overflow-y-auto p-5">
+          <h3 className="mb-1 text-lg font-semibold uppercase tracking-wide text-on-surface-variant">
+            Bill Total
+          </h3>
+          <p className="text-3xl font-bold tabular-nums">{money(meal.total)}</p>
+
           {/* who paid (confirmable if nobody has yet) */}
-          <h3 className="mb-2 text-lg font-semibold uppercase tracking-wide text-on-surface-variant">
+          <h3 className="mb-2 mt-7 text-lg font-semibold uppercase tracking-wide text-on-surface-variant">
             Paid by
           </h3>
           {payerId ? (
