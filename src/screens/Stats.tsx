@@ -57,24 +57,32 @@ export default function Stats({ me }: { me: Me }) {
       {luck.sigma > 0 && (
         <section>
           <SectionHeader>Current Luck</SectionHeader>
-          <div className="mt-2 rounded-2xl bg-surface-container p-4">
-            <p className="text-lg font-semibold">
-              {up ? "Up " : "Down "}
-              <span className={up ? "text-green-400" : "text-red-400"}>
-                {luckPct}%
-              </span>
-            </p>
-            <p className="mt-1 text-on-surface-variant">
-              {up
-                ? `Luckier than ${Math.round(luck.percentile * 100)}% of outcomes`
-                : `Unluckier than ${Math.round((1 - luck.percentile) * 100)}% of outcomes`}
-            </p>
-            {mealsToNormal > 0 && (
-              <p className="mt-1 text-sm text-on-surface-variant">
-                About {mealsToNormal} more meal
-                {mealsToNormal === 1 ? "" : "s"} to reach the normal range.
+          <div className="mt-2 space-y-2 rounded-2xl bg-surface-container p-4">
+            <Row label="Total you've spent">
+              <span className="font-medium">{money(luck.spent)}</span>
+            </Row>
+            <Row label="Total owed (even split)">
+              <span className="font-medium">{money(luck.owed)}</span>
+            </Row>
+            <div className="border-t border-outline-variant pt-2">
+              <p className="text-lg font-semibold">
+                {up ? "Up " : "Down "}
+                <span className={up ? "text-green-400" : "text-red-400"}>
+                  {luckPct}%
+                </span>
               </p>
-            )}
+              <p className="mt-1 text-on-surface-variant">
+                {up
+                  ? `Luckier than ${Math.round(luck.percentile * 100)}% of outcomes`
+                  : `Unluckier than ${Math.round((1 - luck.percentile) * 100)}% of outcomes`}
+              </p>
+              {mealsToNormal > 0 && (
+                <p className="mt-1 text-sm text-on-surface-variant">
+                  About {mealsToNormal} more meal
+                  {mealsToNormal === 1 ? "" : "s"} to reach the normal range.
+                </p>
+              )}
+            </div>
           </div>
         </section>
       )}

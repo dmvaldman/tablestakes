@@ -87,7 +87,9 @@ export type LuckStats = {
   pending: number; // meals still awaiting who-paid
   paidCount: number;
   expectedPaidCount: number; // Σ 1/kₘ
-  luck: number; // share − paid, $; positive = you're up
+  spent: number; // total you actually paid, $ (Σ Tₘ over meals you paid)
+  owed: number; // total even-split share, $ (Σ Tₘ/kₘ)
+  luck: number; // owed − spent, $; positive = you're up
   sigma: number; // sd of luck under the even-split model
   percentile: number; // Φ(luck/σ): fraction of expected outcomes you beat
   avgShare: number; // mean per-meal share, for the dilution estimate
@@ -138,6 +140,8 @@ export function luckStats(meals: MealView[], myId: string): LuckStats {
     pending,
     paidCount,
     expectedPaidCount,
+    spent: paid,
+    owed: share,
     luck,
     sigma,
     percentile: sigma > 0 ? normCdf(luck / sigma) : 0.5,
